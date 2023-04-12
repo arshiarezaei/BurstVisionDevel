@@ -1,10 +1,21 @@
 package microburstdetection;
 
 
+import io.packets.TcpUdpHandler;
+import io.pkts.Pcap;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello World");
+        // args[0]: path of pcap file
+        String sourceFilePath = args[0];
+        // read pcap file
+        try {
+            Pcap pcap = Pcap.openStream(sourceFilePath);
+            pcap.loop(new TcpUdpHandler());
+            pcap.close();
+        }catch (Exception e){
+            System.out.println(e);
+        }
 
     }
 }
