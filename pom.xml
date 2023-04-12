@@ -12,6 +12,21 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pkts.version>3.0.10</pkts.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.pkts</groupId>
+            <artifactId>pkts-core</artifactId>
+            <version>${pkts.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.pkts</groupId>
+            <artifactId>pkts-streams</artifactId>
+            <version>${pkts.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
