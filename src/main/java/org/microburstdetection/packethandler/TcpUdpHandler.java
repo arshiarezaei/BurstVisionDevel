@@ -1,9 +1,9 @@
-package io.packets;
+package org.microburstdetection.packethandler;
 
 import io.pkts.PacketHandler;
-import io.pkts.buffer.Buffer;
 import io.pkts.packet.*;
 import io.pkts.protocol.Protocol;
+import org.microburstdetection.framework.FlowManager;
 
 import java.io.IOException;
 
@@ -16,21 +16,22 @@ public class TcpUdpHandler implements PacketHandler {
 //         Check the packet protocol
         if (packet.hasProtocol(Protocol.IPv4)){
             IPv4Packet iPv4Packet = (IPv4Packet) packet.getPacket(Protocol.IPv4);
-            if(packet.hasProtocol(Protocol.TCP)){
-                TCPPacket tcpPacket = (TCPPacket) packet.getPacket(Protocol.TCP) ;
-                System.out.println("TCP Packet");
-
-            } else if (packet.hasProtocol(Protocol.UDP)) {
-                System.out.println("UDP packet");
-            } else {
-                System.out.println("Not parsed transport layer protocol");
+            if(iPv4Packet.hasProtocol(Protocol.TCP)|| iPv4Packet.hasProtocol(Protocol.UDP)){
+                FlowManager.newPacket(iPv4Packet);
             }
-
-
-        }else if(packet.hasProtocol(Protocol.IPv4)) {
+//
+//            if(packet.hasProtocol(Protocol.TCP)){
+//                TCPPacket tcpPacket = (TCPPacket) packet.getPacket(Protocol.TCP) ;
+//                System.out.println("TCP Packet");
+//            } else if (packet.hasProtocol(Protocol.UDP)) {
+//                System.out.println("UDP packet");
+//            } else {
+//                System.out.println("Not parsed transport layer protocol");
+//            }
+        }else if(packet.hasProtocol(Protocol.IPv6)) {
             System.out.println("IPV6 protocol");
         }else {
-            System.out.println("Not parsed layer-3 protocol");
+//            System.out.println("Not parsed layer-3 protocol");
         }
 //        if (packet.hasProtocol(Protocol.TCP)) {
 //            // Cast the packet to subclass

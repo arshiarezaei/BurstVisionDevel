@@ -1,7 +1,7 @@
-package microburstdetection;
+package org.microburstdetection;
 
 
-import io.packets.TcpUdpHandler;
+import org.microburstdetection.packethandler.TcpUdpHandler;
 import io.pkts.Pcap;
 
 public class Main {
