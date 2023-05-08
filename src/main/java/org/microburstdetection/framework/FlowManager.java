@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FlowManager {
+
+    private static FlowManager flowManager = new FlowManager();
+    private FlowManager(){}
     private static ArrayList<RawFlow> flows = new ArrayList<>();
 
     public static ArrayList<RawFlow> getFlows() {
@@ -73,22 +76,16 @@ public class FlowManager {
             return true;
         }
     }
-//            else if (indices.size()>1) {
-//                System.out.println("error duplicate flows");
-//            }
-//            if (indices.size()>1){
-//
-//                System.out.println(indices);
-//            }else if (indices.size()==1){
-//                System.out.println("Exist");
-////                flows.get(flows.indexOf(flow)).newMatchedPacket(flow);
-//                return flows.get(flows.indexOf(flow));
-//            } else{
-//                System.out.println("error");
-//            }
-//
-//        }else {
-//                flows.add(flow);
+
+    public static int getNumberOfBurstFlows(){
+        int count =0 ;
+        for (RawFlow flow:flows) {
+            if(flow.isBursty()){
+                count++;
+            }
+        }
+        return count;
+    }
 
 
 //    public static Double printAverageBurstduration(){

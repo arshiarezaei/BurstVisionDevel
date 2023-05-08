@@ -13,11 +13,11 @@ import org.microburstdetection.networkstack.layer4.UDP;
 
 import java.util.Objects;
 
-public class FiveTupleFlow implements RawFlow{
+public class FiveTupleFlow extends Flow{
     private Layer3 layer3;
     private Layer4 layer4;
 
-    private BurstEvents burstEvents;
+//    private BurstEvents burstEvents;
 
     private boolean firstPacketArrived = false;
 
@@ -35,9 +35,6 @@ public class FiveTupleFlow implements RawFlow{
         return layer4;
     }
 
-    public BurstEvents getBurstEvents() {
-        return burstEvents;
-    }
 
     public FiveTupleFlow(Packet packet) throws Exception {
         if(packet.hasProtocol(Protocol.IPv4)){
@@ -63,9 +60,9 @@ public class FiveTupleFlow implements RawFlow{
 
     public void newPacket(Packet packet){
         if(firstPacketArrived){
-            this.burstEvents.newPacket(packet);
+            super.burstEvents.newPacket(packet);
         }else {
-            this.burstEvents = new BurstEvents(packet);
+            super.burstEvents = new BurstEvents(packet);
             firstPacketArrived=true;
         }
     }
@@ -83,4 +80,12 @@ public class FiveTupleFlow implements RawFlow{
         return Objects.hash(layer3, layer4, burstEvents);
     }
 
+    @Override
+    public boolean isBursty() {
+        if(super.burstEvents.getBurstsDuration().size()!=0){
+            return true;
+        }else {
+            return false;
+        }
+    }
 }
