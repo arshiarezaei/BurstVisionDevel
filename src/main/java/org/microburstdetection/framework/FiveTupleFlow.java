@@ -82,10 +82,6 @@ public class FiveTupleFlow extends Flow{
 
     @Override
     public boolean isBursty() {
-        if(super.burstEvents.getBurstsDuration().size()!=0){
-            return true;
-        }else {
-            return false;
-        }
+        return super.burstEvents.getBurstsDuration().size() != 0;
     }
 }

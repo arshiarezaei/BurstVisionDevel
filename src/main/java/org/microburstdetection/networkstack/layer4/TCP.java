@@ -20,6 +20,11 @@ public record TCP(int srcPort, int dstPort) implements Layer4{
     }
 
     @Override
+    public int getTransportProtocol() {
+        return transportLayerProtocolCode.getTransportLayerProtocol();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

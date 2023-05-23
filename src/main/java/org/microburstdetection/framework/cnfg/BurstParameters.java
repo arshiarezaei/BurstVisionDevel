@@ -9,7 +9,7 @@ public class BurstParameters {
     private final int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST; // maximum number of packets in a burst event
 
     public BurstParameters() {
-        THRESHOLD = 500000;
+        THRESHOLD = 500_000;
         MINIMUM_NUMBER_OF_PACKETS_IN_BURST=3;
         MAXIMUM_NUMBER_OF_PACKETS_IN_BURST = 20;
     }

@@ -3,6 +3,12 @@ package org.microburstdetection.framework;
 import io.pkts.packet.IPv4Packet;
 import io.pkts.packet.Packet;
 import io.pkts.protocol.Protocol;
+import org.microburstdetection.networkstack.layer3.IPV4;
+import org.microburstdetection.networkstack.layer3.IPV6;
+import org.microburstdetection.networkstack.layer3.Layer3;
+import org.microburstdetection.networkstack.layer4.Layer4;
+import org.microburstdetection.networkstack.layer4.TCP;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,9 +16,9 @@ import java.util.stream.IntStream;
 
 public class FlowManager {
 
-    private static FlowManager flowManager = new FlowManager();
+    private static final FlowManager flowManager = new FlowManager();
     private FlowManager(){}
-    private static ArrayList<RawFlow> flows = new ArrayList<>();
+    private static final ArrayList<RawFlow> flows = new ArrayList<>();
 
     public static ArrayList<RawFlow> getFlows() {
         return flows;
@@ -72,7 +78,7 @@ public class FlowManager {
         }else {
             flows.add(flow);
 //            FiveTupleFlow fiveTupleFlow = flows.indexOf(flow);
-            ((FiveTupleFlow)flow).newPacket(packet);
+            flow.newPacket(packet);
             return true;
         }
     }
@@ -87,26 +93,15 @@ public class FlowManager {
         return count;
     }
 
-
-//    public static Double printAverageBurstduration(){
-//        Double sumOfAvgBurstsDuration = 0.0D;
-//        for (Flow flow:flows) {
-//            Double av =BurstEvents.getAverageBurstDuration(flow.getBurstEvents().getBurstsDuration()); //flow.CalculateAverageBurstDuration();
-//            if(!av.isNaN()){
-////                System.out.println(av);
-//                sumOfAvgBurstsDuration+=av;
-//            }
-//        }
-//        Double avgBurstDuration = sumOfAvgBurstsDuration/(flows.size()*1.0);
-//        return avgBurstDuration;
-//    }
-//    public static int numberOfBurstyFlows(){
-//        int count =0 ;
-//        for (Flow flow:flows) {
-//            if(flow.isBursty()){
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
+    public static  <layer3,layer4> int getNumberOfFlowsWithProtocol(Class<layer3> layer3, Class<layer4>  layer4){
+        //TODO: reimplement function and use generics
+        int counter = 0;
+        for (RawFlow flow:getFlows()) {
+            FiveTupleFlow flowr = (FiveTupleFlow) flow;
+            if(flowr.getLayer3().getClass().isAssignableFrom( layer3 )&& flowr.getLayer4().getClass().isAssignableFrom( layer4 )) {
+                counter++;
+            }
+        }
+        return counter;
+    }
 }

@@ -12,4 +12,12 @@ public enum TransportLayerProtocols {
     public int getTransportLayerProtocol() {
         return transportLayerProtocol;
     }
+    public static String getTransportLayerProtocol(int protocolNumber){
+        switch (protocolNumber){
+            case 6: return "TCP";
+            case 17: return "UDP";
+            default:
+                return "Not defined";
+        }
+    }
 }
