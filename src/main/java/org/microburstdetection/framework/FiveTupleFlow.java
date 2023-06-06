@@ -1,26 +1,31 @@
 package org.microburstdetection.framework;
 
+import java.util.Objects;
+
 import io.pkts.packet.IPv4Packet;
 import io.pkts.packet.Packet;
 import io.pkts.packet.TCPPacket;
 import io.pkts.packet.UDPPacket;
 import io.pkts.protocol.Protocol;
+
+import org.microburstdetection.framework.utilities.TraversedBytesUnits;
+import org.microburstdetection.framework.utilities.Utilities;
 import org.microburstdetection.networkstack.layer3.IPV4;
 import org.microburstdetection.networkstack.layer3.Layer3;
 import org.microburstdetection.networkstack.layer4.Layer4;
 import org.microburstdetection.networkstack.layer4.TCP;
 import org.microburstdetection.networkstack.layer4.UDP;
 
-import java.util.Objects;
 
-public class FiveTupleFlow extends Flow{
+public class FiveTupleFlow implements RawFlow {
     private Layer3 layer3;
     private Layer4 layer4;
-
-//    private BurstEvents burstEvents;
-
+    private int traversedBytes;
+    private long firstPacketTime;
+    private long lastPacketTime;
     private boolean firstPacketArrived = false;
 
+    private BurstEvents burstEvents;
     private FiveTupleFlow(Layer3 layer3, Layer4 layer4) {
         this.layer3 = layer3;
         this.layer4 = layer4;
@@ -57,16 +62,35 @@ public class FiveTupleFlow extends Flow{
             throw new Exception("IPV6 Packet");
         }
     }
-
     public void newPacket(Packet packet){
         if(firstPacketArrived){
-            super.burstEvents.newPacket(packet);
+            this.burstEvents.newPacket(packet);
         }else {
-            super.burstEvents = new BurstEvents(packet);
+            this.burstEvents = new BurstEvents(packet);
             firstPacketArrived=true;
+            this.firstPacketTime = packet.getArrivalTime();
         }
+        this.increaseTraversedBytes(packet);
+        this.lastPacketTime = packet.getArrivalTime();
     }
 
+    @Override
+    public long getFirstPacketTime() {
+        return firstPacketTime;
+    }
+
+    @Override
+    public long getlastPacketTime() {
+        return lastPacketTime;
+    }
+
+    public long flowLiveTime(){
+        return getlastPacketTime()-getFirstPacketTime();
+    }
+    @Override
+    public int getTraversedBytes(){
+        return traversedBytes;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -82,6 +106,36 @@ public class FiveTupleFlow extends Flow{
 
     @Override
     public boolean isBursty() {
-        return super.burstEvents.getBurstsDuration().size() != 0;
+        return this.burstEvents.getBurstsDuration().size() != 0;
+    }
+
+    @Override
+    public BurstEvents getBurstEvents() {
+        return burstEvents;
+    }
+
+    @Override
+    public void increaseTraversedBytes(Packet packet) {
+
+        traversedBytes = getTraversedBytes() + Utilities.getPacketPayloadSize(packet);
+    }
+
+    @Override
+    public <T> double getAverageThroughput(TraversedBytesUnits T) {
+        int pow ;
+        switch (T){
+            case BYTES_PER_SECONDS -> pow=0;
+            case KILOBYTES_PER_SECOND -> pow=4;
+            case MEGABYTE_PER_SECOND -> pow=6;
+            default -> pow=0;
+        }
+
+        return getTraversedBytes()/(flowLiveTime()*1.0)*Math.pow(10,pow);
+    }
+
+    @Override
+    public double getAverageThroughputInBursts() {
+        // TODO: throws Exception if the flow is not bursty
+        return this.burstEvents.getAverageBurstThroughput(TraversedBytesUnits.KILOBYTES_PER_SECOND);
     }
 }

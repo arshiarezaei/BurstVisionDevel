@@ -6,10 +6,6 @@ import org.apache.commons.cli.*;
 import org.microburstdetection.framework.FlowManager;
 import org.microburstdetection.framework.results.Results;
 import org.microburstdetection.framework.utilities.Utilities;
-import org.microburstdetection.networkstack.layer3.IPV4;
-import org.microburstdetection.networkstack.layer4.TCP;
-import org.microburstdetection.networkstack.layer4.TransportLayerProtocols;
-import org.microburstdetection.networkstack.layer4.UDP;
 import org.microburstdetection.packethandler.TcpUdpHandler;
 
 
@@ -43,9 +39,9 @@ public class Main {
 
         String inputFilePath = cmd.getOptionValue("input");
         String outputFilePath = cmd.getOptionValue("output");
-
-        System.out.println(inputFilePath);
-        System.out.println(outputFilePath);
+        // print input and results paths
+//        System.out.println(inputFilePath);
+//        System.out.println(outputFilePath);
 
         String[] sourceFilePath = inputFilePath.split(",");
         String resultsPath = outputFilePath;
@@ -65,7 +61,21 @@ public class Main {
 //            Results.printCDFBytesTraversedBurstsToFile(FlowManager.getFlows(), TransportLayerProtocols.TCP.getTransportLayerProtocol());
 //            Results.saveGeneralResultsToFile(FlowManager.getFlows());
 //            FlowManager.getNumberOfFlowsWithProtocol(IPV4.class,TCP.class);
-            Results.saveGeneralResultsToFile(FlowManager.getFlows());
+//            Results.saveGeneralResultsToFile(FlowManager.getFlows());
+//            Results.saveCDFOfFlowsThroughput(FlowManager.getFlows(), TraversedBytesUnits.KILOBYTES_PER_SECOND);
+            Results.saveCDFOFInterBurstTime(FlowManager.getFlows());
+//            for (RawFlow flow:FlowManager.getFlows()) {
+//                if(flow.isBursty()){
+//                    System.out.println(flow.getBurstEvents().getInterBurstTime());
+//                }
+//            }
+//            System.out.println("");
+//            for (RawFlow rawFlow:FlowManager.getFlows()) {
+//                if(rawFlow.isBursty()){
+//                    System.out.println(Utilities.getRoundedValue(rawFlow.getAverageThroughputInBursts()) +"  Bytes/second");
+//                }
+//            }
+
         }catch (Exception e){
             System.out.println(e);
         }
