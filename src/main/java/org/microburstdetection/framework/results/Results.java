@@ -101,7 +101,7 @@ public class Results {
         avgBurstDuration = Utilities.getRoundedValue(avgBurstDuration/(numBurstyFlows*1.0));
         avgTraversedBytes = (int) Math.ceil(avgTraversedBytes/(numBurstyFlows*1.0));
         avgNumBurstsInAllBurstyFlows =(int) Math.ceil(avgNumBurstsInAllBurstyFlows/(numBurstyFlows*1.0));
-        avgThroughputBurstyFlows = Utilities.getRoundedValue(avgThroughputBurstyFlows/(counter*1.0)*Math.pow(10,6));
+        avgThroughputBurstyFlows = Utilities.getRoundedValue(avgThroughputBurstyFlows/(counter*1.0));
         avgThroughput = Utilities.getRoundedValue(avgThroughput/(flows.size()*1.0));
         for (RawFlow rawFlow: flows) {
             if(rawFlow.getAverageThroughput(TraversedBytesUnits.BYTES_PER_SECONDS)>avgThroughput){

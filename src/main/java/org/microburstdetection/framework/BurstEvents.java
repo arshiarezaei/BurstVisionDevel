@@ -135,6 +135,6 @@ public class BurstEvents {
             sumBurstsDuration += (long) iterator.next();
             sumTraversedBytes += (int) iterator1.next();
         }
-        return (sumTraversedBytes/(sumBurstsDuration*1.0))*Math.pow(10,(T.getTraversedBytesUnits()+6));
+        return (sumTraversedBytes/(sumBurstsDuration*1.0))*Math.pow(10,(T.getTraversedBytesUnits()));
     }
 }
