@@ -19,14 +19,12 @@ public class BurstEvents {
     private static final int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST=ConfigurationParameters.getBurstParameters().getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST(); // maximum number of packets in a burst event
 
     // reset the following properties in each burst
-    private long arrivalTimeOfFirstBurstyPacket;
-    private long arrivalTimeOfLastBurstyPacket;
-    private int numberOfPacketsSinceLastBurst; // number of packets in the new probable burst
     private long startTimeOfTheCurrentPeriod; // elapsed time of new probable burst
-    private long timeOfLastPacket; // arrival time of last matched packet
+    private long arrivalTimeOfLastPacket; // arrival time of last matched packet
+    private long arrivalTimeOfLastBurstyPacketInLastBurst;
+    private int numberOfPacketsSinceLastBurst; // number of packets in the new probable burst
     private int traversedBytesInCurrentBurst;
     // the following properties capture information of burst, DO NOT Change them
-    private long timeOfLastPacketInPreviousBurst;
     private final ArrayList<Integer> packetsInBurst= new ArrayList<>(); // number of packets in each burst event
     private final ArrayList<Long> burstsDuration= new ArrayList<>(); // burst duration in microseconds
     //TODO:  implement storing interBurst time
@@ -54,20 +52,19 @@ public class BurstEvents {
         // call this method only on first packet
         this.numberOfPacketsSinceLastBurst = 1;
         this.startTimeOfTheCurrentPeriod = packet.getArrivalTime();
-        this.timeOfLastPacket = packet.getArrivalTime();
+        this.arrivalTimeOfLastPacket = packet.getArrivalTime();
         this.traversedBytesInCurrentBurst = packet.getParentPacket().getPayload().getArray().length;
     }
 
     public void newPacket(Packet packet){
-        long elapsedTimeSinceLastPacket = packet.getArrivalTime()-timeOfLastPacket;
+        long elapsedTimeSinceLastPacket = packet.getArrivalTime()- arrivalTimeOfLastPacket;
         if (elapsedTimeSinceLastPacket<= THRESHOLD &&
                 numberOfPacketsSinceLastBurst < MAXIMUM_NUMBER_OF_PACKETS_IN_BURST ){
             numberOfPacketsSinceLastBurst +=1;
-            timeOfLastPacket = packet.getArrivalTime();
             traversedBytesInCurrentBurst+=packet.getParentPacket().getPayload().getArray().length;
+            arrivalTimeOfLastPacket = packet.getArrivalTime();
             if(numberOfPacketsSinceLastBurst == MAXIMUM_NUMBER_OF_PACKETS_IN_BURST){
                 addNewBurst(packet);
-//                System.out.println("New Burst");
                 resetBurstParameters(packet);
             }
         }
@@ -88,51 +85,45 @@ public class BurstEvents {
 
     private void addNewBurst(){
 //        System.out.println("Burst 1");
-        //TODO: check
-        if (this.burstsDuration.isEmpty()){
-            this.arrivalTimeOfFirstBurstyPacket = startTimeOfTheCurrentPeriod;
-        }else {
-            this.arrivalTimeOfLastBurstyPacket = timeOfLastPacket;
-        }
         packetsInBurst.add(numberOfPacketsSinceLastBurst);
-        long duration = timeOfLastPacket-startTimeOfTheCurrentPeriod;
-        burstsDuration.add(duration);
         bytesInEachBurst.add(traversedBytesInCurrentBurst);
-        long interBurstTime = startTimeOfTheCurrentPeriod - this.timeOfLastPacketInPreviousBurst;
-        this.interBurstTime.add(interBurstTime);
-        this.timeOfLastPacketInPreviousBurst = timeOfLastPacket;
+        long duration = arrivalTimeOfLastPacket - startTimeOfTheCurrentPeriod;
+        burstsDuration.add(duration);
+        if(burstsDuration.size()>1){
+            long interBurstTime = startTimeOfTheCurrentPeriod -arrivalTimeOfLastBurstyPacketInLastBurst;
+            this.interBurstTime.add(interBurstTime);
+        }
     }
     private void addNewBurst(Packet packet){
-        // TODO: check
-        if (this.burstsDuration.isEmpty()){
-            this.arrivalTimeOfFirstBurstyPacket = startTimeOfTheCurrentPeriod;
-        }else {
-            this.arrivalTimeOfLastBurstyPacket = timeOfLastPacket;
-        }
-//        System.out.println("Burst 2");
+        // executes when maximum number of packets in burst is reached
         packetsInBurst.add(numberOfPacketsSinceLastBurst);
-        long duration = packet.getArrivalTime()-startTimeOfTheCurrentPeriod;
-        burstsDuration.add(duration);
         bytesInEachBurst.add(traversedBytesInCurrentBurst);
-        long interBurstTime = startTimeOfTheCurrentPeriod - this.timeOfLastPacketInPreviousBurst;
-        this.interBurstTime.add(interBurstTime);
-        this.timeOfLastPacketInPreviousBurst = timeOfLastPacket;
+        long duration = arrivalTimeOfLastPacket - startTimeOfTheCurrentPeriod;
+        burstsDuration.add(duration);
+        if(burstsDuration.size()>1){
+            long interBurstTime =  startTimeOfTheCurrentPeriod -arrivalTimeOfLastBurstyPacketInLastBurst;
+            this.interBurstTime.add(interBurstTime);
+        }
+        // add inter-burst time
+
+
     }
 
     // reset burst parameters to capture next burst event
     private void resetBurstParameters(Packet packet){
         // TODO: check numberOfPacketsSinceLastBurst to be 0 or 1 ????
-        this.numberOfPacketsSinceLastBurst=1;
-        this.startTimeOfTheCurrentPeriod =  packet.getArrivalTime();
-        this.timeOfLastPacket = packet.getArrivalTime();
-        this.traversedBytesInCurrentBurst = 0 ;
+        this.numberOfPacketsSinceLastBurst = 0;
+        this.traversedBytesInCurrentBurst = 0;
+        this.startTimeOfTheCurrentPeriod = packet.getArrivalTime();
+        this.arrivalTimeOfLastBurstyPacketInLastBurst = arrivalTimeOfLastPacket;
+        this.arrivalTimeOfLastPacket = packet.getArrivalTime();
     }
 
     public ArrayList<Long> getInterBurstTime() {
         return interBurstTime;
     }
-    public <T> double  getAverageBurstThroughput(TraversedBytesUnits T ){
-        //TODO: chekc
+    public double  getAverageBurstThroughput(TraversedBytesUnits T ){
+        // check for correct function
         if(getBurstsDuration().size()!=getBytesInEachBurst().size()){
             System.out.println("ERROR");
         }
@@ -144,6 +135,6 @@ public class BurstEvents {
             sumBurstsDuration += (long) iterator.next();
             sumTraversedBytes += (int) iterator1.next();
         }
-        return (sumTraversedBytes/(sumBurstsDuration*1.0))*Math.pow(10,T.getTraversedBytesUnits());
+        return (sumTraversedBytes/(sumBurstsDuration*1.0))*Math.pow(10,(T.getTraversedBytesUnits()+6));
     }
 }

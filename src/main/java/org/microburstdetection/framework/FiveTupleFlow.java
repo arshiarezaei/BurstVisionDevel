@@ -8,6 +8,7 @@ import io.pkts.packet.TCPPacket;
 import io.pkts.packet.UDPPacket;
 import io.pkts.protocol.Protocol;
 
+import org.microburstdetection.framework.cnfg.HeavyFlowStaticProperties;
 import org.microburstdetection.framework.utilities.TraversedBytesUnits;
 import org.microburstdetection.framework.utilities.Utilities;
 import org.microburstdetection.networkstack.layer3.IPV4;
@@ -17,15 +18,19 @@ import org.microburstdetection.networkstack.layer4.TCP;
 import org.microburstdetection.networkstack.layer4.UDP;
 
 
-public class FiveTupleFlow implements RawFlow {
+public class FiveTupleFlow extends Flow implements RawFlow {
+    // Flow headers
     private Layer3 layer3;
     private Layer4 layer4;
-    private int traversedBytes;
-    private long firstPacketTime;
-    private long lastPacketTime;
+    // end of flow headers
+    private long firstPacketTime; // arrival time of first packer
+    private long lastPacketTime; // arrival time of last packet
+    private int numberOfPackets;
+    private int traversedBytes; // traversed bytes between first and last packets
     private boolean firstPacketArrived = false;
 
-    private BurstEvents burstEvents;
+    private BurstEvents burstEvents; // captures burst events
+
     private FiveTupleFlow(Layer3 layer3, Layer4 layer4) {
         this.layer3 = layer3;
         this.layer4 = layer4;
@@ -62,16 +67,29 @@ public class FiveTupleFlow implements RawFlow {
             throw new Exception("IPV6 Packet");
         }
     }
+
     public void newPacket(Packet packet){
         if(firstPacketArrived){
             this.burstEvents.newPacket(packet);
+            numberOfPackets+=1;
         }else {
             this.burstEvents = new BurstEvents(packet);
             firstPacketArrived=true;
             this.firstPacketTime = packet.getArrivalTime();
+            numberOfPackets=1;
         }
         this.increaseTraversedBytes(packet);
         this.lastPacketTime = packet.getArrivalTime();
+    }
+    @Override
+    public boolean isBursty() {
+        return this.burstEvents.getBurstsDuration().size() != 0;
+    }
+
+    @Override
+    public boolean isHeavy() {
+        return this.getAverageThroughput(TraversedBytesUnits.BYTES_PER_SECONDS) >= -1;
+//        this.getAverageThroughput(TraversedBytesUnits.BYTES_PER_SECONDS) >= HeavyFlowStaticProperties.getHeavyFlowThroughputThreshold();
     }
 
     @Override
@@ -87,6 +105,12 @@ public class FiveTupleFlow implements RawFlow {
     public long flowLiveTime(){
         return getlastPacketTime()-getFirstPacketTime();
     }
+
+    @Override
+    public int getNumberOfPackets() {
+        return this.numberOfPackets;
+    }
+
     @Override
     public int getTraversedBytes(){
         return traversedBytes;
@@ -105,11 +129,6 @@ public class FiveTupleFlow implements RawFlow {
     }
 
     @Override
-    public boolean isBursty() {
-        return this.burstEvents.getBurstsDuration().size() != 0;
-    }
-
-    @Override
     public BurstEvents getBurstEvents() {
         return burstEvents;
     }
@@ -121,21 +140,16 @@ public class FiveTupleFlow implements RawFlow {
     }
 
     @Override
-    public <T> double getAverageThroughput(TraversedBytesUnits T) {
-        int pow ;
-        switch (T){
-            case BYTES_PER_SECONDS -> pow=0;
-            case KILOBYTES_PER_SECOND -> pow=4;
-            case MEGABYTE_PER_SECOND -> pow=6;
-            default -> pow=0;
-        }
-
-        return getTraversedBytes()/(flowLiveTime()*1.0)*Math.pow(10,pow);
+    public double getAverageThroughput(TraversedBytesUnits T) {
+        return (getNumberOfPackets()<=3) ? 0:(getTraversedBytes()/(flowLiveTime()*1.0)*Math.pow(10,T.getTraversedBytesUnits()));//*Math.pow(10,pow);
     }
 
     @Override
-    public double getAverageThroughputInBursts() {
+    public  Double getAverageThroughputInBursts(TraversedBytesUnits T) {
         // TODO: throws Exception if the flow is not bursty
-        return this.burstEvents.getAverageBurstThroughput(TraversedBytesUnits.KILOBYTES_PER_SECOND);
+        if(this.isBursty()){
+            return  this.burstEvents.getAverageBurstThroughput(T);
+        }
+        return null;
     }
 }

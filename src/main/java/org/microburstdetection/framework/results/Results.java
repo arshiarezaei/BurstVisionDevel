@@ -1,14 +1,5 @@
+
 package org.microburstdetection.framework.results;
-import org.microburstdetection.framework.FiveTupleFlow;
-import org.microburstdetection.framework.FlowManager;
-import org.microburstdetection.framework.RawFlow;
-import org.microburstdetection.framework.utilities.TraversedBytesUnits;
-import org.microburstdetection.framework.utilities.Utilities;
-import org.microburstdetection.networkstack.layer3.IPV4;
-import org.microburstdetection.networkstack.layer3.Layer3;
-import org.microburstdetection.networkstack.layer4.TCP;
-import org.microburstdetection.networkstack.layer4.TransportLayerProtocols;
-import org.microburstdetection.networkstack.layer4.UDP;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,13 +9,24 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import org.microburstdetection.framework.FiveTupleFlow;
+import org.microburstdetection.framework.FlowManager;
+import org.microburstdetection.framework.RawFlow;
+import org.microburstdetection.framework.cnfg.TrafficType;
+import org.microburstdetection.framework.utilities.TraversedBytesUnits;
+import org.microburstdetection.framework.utilities.Utilities;
+import org.microburstdetection.networkstack.layer3.IPV4;
+import org.microburstdetection.networkstack.layer4.TCP;
+import org.microburstdetection.networkstack.layer4.TransportLayerProtocols;
+import org.microburstdetection.networkstack.layer4.UDP;
+
 
 public class Results {
 
     private static String resultsDir;
     private static String dataSetName;
-    private static final Results results = new Results();
+    private static final Results results = new Results(); // make Results a singleton class
 
 
     private Results() {
@@ -66,38 +68,79 @@ public class Results {
     }
 
     public static void saveGeneralResultsToFile(ArrayList<RawFlow> flows){
-        //TODO: implement function budy
+        //TODO: move calculation of each parameter to a separate function
+
         Integer numFlows = flows.size();
-        int burstyFlows = flows.stream().filter(RawFlow::isBursty).toList().size();
+        int numBurstyFlows = flows.stream().filter(RawFlow::isBursty).toList().size();
         int numTCPFlows = FlowManager.getNumberOfFlowsWithProtocol( IPV4.class,TCP.class);
         int numUDPFlows = FlowManager.getNumberOfFlowsWithProtocol(IPV4.class,UDP.class);
         int avgNumPacketsInBursts=0;
         int packetsInBurstCounter = 0;
         double avgBurstDuration=0;
         int avgTraversedBytes = 0;
-        double avgNumBursts=0;
+        double avgNumBurstsInAllBurstyFlows=0;
+        double avgThroughputBurstyFlows = 0.0;
+        double avgThroughput=0;
+        double avgThroughputHeavy=0;
+        double counterAvgThroughputHeavy=0;
+        double counter=0;// this counter tracks the number of flows that has more than one packet
         for (RawFlow flow:flows) {
             if(flow.isBursty()){
                 packetsInBurstCounter += flow.getBurstEvents().getPacketsInBurst().size();
                 avgBurstDuration += flow.getBurstEvents().getBurstsDuration().stream().mapToDouble(a->a).sum();
                 avgTraversedBytes += flow.getBurstEvents().getBytesInEachBurst().stream().mapToInt(a->a).sum();
-                avgNumBursts += flow.getBurstEvents().getNumberOfBurstEvents();
-
+                avgNumBurstsInAllBurstyFlows += flow.getBurstEvents().getNumberOfBurstEvents();
+                if(flow.getNumberOfPackets()>1){
+                    avgThroughputBurstyFlows+=flow.getAverageThroughputInBursts(TraversedBytesUnits.BYTES_PER_SECONDS);
+                    counter++;
+                }
+            }
+            avgThroughput += flow.getAverageThroughput(TraversedBytesUnits.BYTES_PER_SECONDS);
+        }
+        avgNumPacketsInBursts = (int) (Math.ceil(packetsInBurstCounter/(numBurstyFlows*1.0)));
+        avgBurstDuration = Utilities.getRoundedValue(avgBurstDuration/(numBurstyFlows*1.0));
+        avgTraversedBytes = (int) Math.ceil(avgTraversedBytes/(numBurstyFlows*1.0));
+        avgNumBurstsInAllBurstyFlows =(int) Math.ceil(avgNumBurstsInAllBurstyFlows/(numBurstyFlows*1.0));
+        avgThroughputBurstyFlows = Utilities.getRoundedValue(avgThroughputBurstyFlows/(counter*1.0)*Math.pow(10,6));
+        avgThroughput = Utilities.getRoundedValue(avgThroughput/(flows.size()*1.0));
+        for (RawFlow rawFlow: flows) {
+            if(rawFlow.getAverageThroughput(TraversedBytesUnits.BYTES_PER_SECONDS)>avgThroughput){
+                avgThroughputHeavy += rawFlow.getAverageThroughput(TraversedBytesUnits.BYTES_PER_SECONDS);
+                counterAvgThroughputHeavy++;
             }
         }
-        avgNumPacketsInBursts = (int) (Math.ceil(packetsInBurstCounter/(burstyFlows*1.0)));
-        avgBurstDuration = avgBurstDuration/(burstyFlows*1.0);
-        avgTraversedBytes = (int) Math.ceil(avgTraversedBytes/(burstyFlows*1.0));
-        avgNumBursts =(int) Math.ceil(avgNumBursts/(burstyFlows*1.0));
-
+        avgThroughputHeavy = Utilities.getRoundedValue((avgThroughputHeavy/(counterAvgThroughputHeavy))*
+                Math.pow(10,TraversedBytesUnits.BYTES_PER_SECONDS.getTraversedBytesUnits()));
         try{
             File file = new File(resultsDir +"/general.txt");
             file.createNewFile();
             FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write("dataset\t#flows\t#tcp_flows\t#udp_flows\t#bursty_flows\tavg_num_brsts\t" +
-                    "avg_duration_burst\tavg_bytes_traversed\tavg_num_pkts_in_bursts\n");
-            fileWriter.write(dataSetName+"\t"+numFlows+"\t"+numTCPFlows+"\t"+numUDPFlows+"\t"+burstyFlows+"\t"+
-                    avgNumBursts+"\t"+avgBurstDuration+"\t"+avgTraversedBytes+"\t"+avgNumPacketsInBursts);
+            fileWriter.write(
+                    "Dataset\t "+dataSetName+"\n"+
+                            "Number of flows\t" + numFlows + "\n"+
+                            "Number of TCP flows\t" + numTCPFlows + "\n"+
+                            "Number of UDP flows\t" + numUDPFlows + "\n"+
+                            "Number of Heavy Flows\t" + FlowManager.getFlowsByTrafficType(TrafficType.HEAVY).size() +"\n"+
+                            "Number of Heavy TCP flows\t"+ FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,
+                            TrafficType.HEAVY,IPV4.class,TCP.class)+"\n"+
+                            "Number of Heavy UDP flows\t"+ FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,
+                            TrafficType.HEAVY,IPV4.class,UDP.class)+"\n"+
+                            "Number of bursty flows\t" + numBurstyFlows + "\n"+
+                            "Number of TCP bursty flows\t" + FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,
+                            TrafficType.BURSTY,IPV4.class,TCP.class) + "\n"+
+                            "Number of UDP bursty flows\t" + FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,
+                            TrafficType.BURSTY,IPV4.class,UDP.class) + "\n"+
+
+                            "Average throughput of all flows\t"+ avgThroughput+"\n"+
+                            "Average throughput of heavy flows\t"+ avgThroughputHeavy +"\n"+
+                            "Average throughput of bursty Flows\t" + avgThroughputBurstyFlows+"\n"+
+
+                            "Average number of bursts\t" + avgNumBurstsInAllBurstyFlows + "\n"+
+                            "Average burst duration\t" + Utilities.getRoundedValue(avgBurstDuration) + "\n"+
+                            "Average traversed bytes in bursts\t" +  avgTraversedBytes + "\n"+
+                            "Average number of packets in Bursts\t"+ avgNumPacketsInBursts+ "\n");
+//            fileWriter.write(dataSetName+"\t"+numFlows+"\t"+numTCPFlows+"\t"+numUDPFlows+"\t"+numBurstyFlows+"\t"+
+//                    avgNumBurstsInAllBurstyFlows+"\t"+avgBurstDuration+"\t"+avgTraversedBytes+"\t"+avgNumPacketsInBursts);
             fileWriter.flush();
             fileWriter.close();
         }catch (Exception e){
@@ -426,6 +469,7 @@ public class Results {
 
     public static <T> void saveCDFOfFlowsThroughput(ArrayList<RawFlow> flows,TraversedBytesUnits T){
        ArrayList<Double> arrayList = flows.stream().map(rawFlow -> Utilities.getRoundedValue(rawFlow.getAverageThroughput(T))).collect(Collectors.toCollection(ArrayList::new));
+       arrayList.removeIf(aDouble -> aDouble.equals(0));
        // calculate sorted cdf of flows' throughput
         String path = Results.resultsDir+"/"+"cdf_flow_throughput.txt";
         Map sortedCDF = Results.calculateCDFDouble(arrayList);

@@ -3,23 +3,18 @@ package org.microburstdetection.framework;
 import io.pkts.packet.IPv4Packet;
 import io.pkts.packet.Packet;
 import io.pkts.protocol.Protocol;
-import org.microburstdetection.networkstack.layer3.IPV4;
-import org.microburstdetection.networkstack.layer3.IPV6;
-import org.microburstdetection.networkstack.layer3.Layer3;
-import org.microburstdetection.networkstack.layer4.Layer4;
-import org.microburstdetection.networkstack.layer4.TCP;
+import org.microburstdetection.framework.cnfg.TrafficType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FlowManager {
 
+    private static final ArrayList<RawFlow> flows = new ArrayList<>();
     private static final FlowManager flowManager = new FlowManager();
     private FlowManager(){}
-    private static final ArrayList<RawFlow> flows = new ArrayList<>();
 
     public static ArrayList<RawFlow> getFlows() {
         return flows;
@@ -84,4 +79,44 @@ public class FlowManager {
         }
         return counter;
     }
+///*    public static  int getNumberOfFlowsByType(){
+////        System.out.println(flowClass.toString());
+//        System.out.println(getFlows().get(0).getClass().getInterfaces()[0].getSimpleName().equals( getFlows().get(0).getClass().toString()));
+//        for (RawFlow rawFlow: getFlows()) {
+//            System.out.println(rawFlow.getClass().getInterfaces()[0].getSimpleName().equals( rawFlow.getClass().toString()));
+//        }
+//        return 0;
+//    }*/
+    public static ArrayList<RawFlow> getFlowsByTrafficType(TrafficType trafficType){
+        switch (trafficType){
+            case HEAVY -> {return getFlows().stream().filter(RawFlow::isHeavy).collect(Collectors.toCollection(ArrayList::new));}
+            case BURSTY -> {return getFlows().stream().filter(RawFlow::isBursty).collect(Collectors.toCollection(ArrayList::new));}
+            default -> { return new ArrayList<>();}
+        }
+    }
+    private static <flowClass>  ArrayList<flowClass> getFlowsByClassName (ArrayList<RawFlow> flows, Class<flowClass> flowClass){
+        return flows.stream().filter(rawFlow -> rawFlow.getClass().getSimpleName().equals(flowClass.getSimpleName())).map(rawFlow -> (flowClass) rawFlow).collect(Collectors.toCollection(ArrayList::new));
+    }
+    public static <Flow> int getNumberOfFlowsByType(Class<Flow> flowType, TrafficType flowTrafficClass,Class... protocols) throws IllegalStateException{
+        int counter = 0;
+//        System.out.println(protocols[0].getSimpleName()+"\t"+protocols[1].getSimpleName());
+        for (Flow flow: getFlowsByClassName(getFlowsByTrafficType(flowTrafficClass),flowType)) {
+            String s = flow.getClass().getSimpleName();
+            switch (flow){
+                case FiveTupleFlow f: {
+                    f = (FiveTupleFlow) flow;
+                    if(f.getLayer3().getClass().getSimpleName().equals(protocols[0].getSimpleName())&&
+                        f.getLayer4().getClass().getSimpleName().equals(protocols[1].getSimpleName())) {
+                        counter++;
+                        break;
+                    }
+                }
+                default:
+//                    throw new IllegalStateException("Unexpected value: " + flow);
+            }
+        }
+//        System.out.println(counter);
+        return counter;
+    }
+
 }
