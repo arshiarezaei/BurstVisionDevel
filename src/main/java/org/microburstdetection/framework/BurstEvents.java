@@ -19,8 +19,10 @@ public class BurstEvents {
     private static final int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST=ConfigurationParameters.getBurstParameters().getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST(); // maximum number of packets in a burst event
 
     // reset the following properties in each burst
-    private long startTimeOfTheCurrentPeriod; // elapsed time of new probable burst
-    private long arrivalTimeOfLastPacket; // arrival time of last matched packet
+//    private long startTimeOfTheCurrentPeriod; // elapsed time of new probable burst
+    private long arrivalTimeOfPreviousPacket; // arrival time of last matched packet
+    private long arrivalTimeOfLastBusrtyPacket;
+    private long arrivalTimeOfFirstBurstyPacket;
     private long arrivalTimeOfLastBurstyPacketInLastBurst;
     private int numberOfPacketsSinceLastBurst; // number of packets in the new probable burst
     private int traversedBytesInCurrentBurst;
@@ -51,57 +53,81 @@ public class BurstEvents {
     public BurstEvents(Packet packet) {
         // call this method only on first packet
         this.numberOfPacketsSinceLastBurst = 1;
-        this.startTimeOfTheCurrentPeriod = packet.getArrivalTime();
-        this.arrivalTimeOfLastPacket = packet.getArrivalTime();
+        long firstArrivalTime = packet.getArrivalTime();
+        this.arrivalTimeOfPreviousPacket = firstArrivalTime;
+        this.arrivalTimeOfLastBusrtyPacket = firstArrivalTime;
+        this.arrivalTimeOfFirstBurstyPacket = firstArrivalTime;
+        this.arrivalTimeOfLastBurstyPacketInLastBurst = firstArrivalTime;
         this.traversedBytesInCurrentBurst = packet.getParentPacket().getPayload().getArray().length;
     }
 
     public void newPacket(Packet packet){
-        long elapsedTimeSinceLastPacket = packet.getArrivalTime()- arrivalTimeOfLastPacket;
-        if (elapsedTimeSinceLastPacket<= THRESHOLD &&
-                numberOfPacketsSinceLastBurst < MAXIMUM_NUMBER_OF_PACKETS_IN_BURST ){
-            numberOfPacketsSinceLastBurst +=1;
-            traversedBytesInCurrentBurst+=packet.getParentPacket().getPayload().getArray().length;
-            arrivalTimeOfLastPacket = packet.getArrivalTime();
-            if(numberOfPacketsSinceLastBurst == MAXIMUM_NUMBER_OF_PACKETS_IN_BURST){
-                addNewBurst(packet);
+        long elapsedTimeSinceLastPacket = packet.getArrivalTime()- arrivalTimeOfPreviousPacket;
+        arrivalTimeOfPreviousPacket = packet.getArrivalTime();
+        if(elapsedTimeSinceLastPacket <= THRESHOLD
+                && numberOfPacketsSinceLastBurst <= MINIMUM_NUMBER_OF_PACKETS_IN_BURST
+                && numberOfPacketsSinceLastBurst < MAXIMUM_NUMBER_OF_PACKETS_IN_BURST){
+            // DOC: not yet burst
+            numberOfPacketsSinceLastBurst+=1;
+        }
+        if(elapsedTimeSinceLastPacket<=THRESHOLD
+                && numberOfPacketsSinceLastBurst == MINIMUM_NUMBER_OF_PACKETS_IN_BURST ){
+            this.arrivalTimeOfFirstBurstyPacket = packet.getArrivalTime();
+        }
+        if (elapsedTimeSinceLastPacket<=THRESHOLD
+                && numberOfPacketsSinceLastBurst > MINIMUM_NUMBER_OF_PACKETS_IN_BURST
+                && numberOfPacketsSinceLastBurst <=MAXIMUM_NUMBER_OF_PACKETS_IN_BURST){
+            this.numberOfPacketsSinceLastBurst+=1;
+            this.arrivalTimeOfLastBusrtyPacket = packet.getArrivalTime();
+            if(numberOfPacketsSinceLastBurst==MAXIMUM_NUMBER_OF_PACKETS_IN_BURST){
+                addNewBurst();
                 resetBurstParameters(packet);
             }
         }
-        else if(elapsedTimeSinceLastPacket > THRESHOLD &&
-                numberOfPacketsSinceLastBurst>=BurstEvents.MINIMUM_NUMBER_OF_PACKETS_IN_BURST){
+        if(elapsedTimeSinceLastPacket > THRESHOLD &&
+                numberOfPacketsSinceLastBurst > MINIMUM_NUMBER_OF_PACKETS_IN_BURST) {
             addNewBurst();
-//            System.out.println("New Burst 2");
+            resetBurstParameters(packet);
+        }else if(elapsedTimeSinceLastPacket>THRESHOLD){
             resetBurstParameters(packet);
         }
-        else if (elapsedTimeSinceLastPacket > THRESHOLD &&
-                numberOfPacketsSinceLastBurst < BurstEvents.MINIMUM_NUMBER_OF_PACKETS_IN_BURST) {
-            resetBurstParameters(packet);
-//            System.out.println("Not Burst");
-        }
-
-
     }
 
     private void addNewBurst(){
-//        System.out.println("Burst 1");
         packetsInBurst.add(numberOfPacketsSinceLastBurst);
         bytesInEachBurst.add(traversedBytesInCurrentBurst);
-        long duration = arrivalTimeOfLastPacket - startTimeOfTheCurrentPeriod;
+        long duration = arrivalTimeOfLastBusrtyPacket - arrivalTimeOfFirstBurstyPacket;
+        if(duration<=0){
+            System.out.println("Error1 \t"+arrivalTimeOfLastBusrtyPacket+"\t"+arrivalTimeOfFirstBurstyPacket+
+                    " size duration\t"+burstsDuration.size()+"\t"+numberOfPacketsSinceLastBurst);
+        }
         burstsDuration.add(duration);
         if(burstsDuration.size()>1){
-            long interBurstTime = startTimeOfTheCurrentPeriod -arrivalTimeOfLastBurstyPacketInLastBurst;
+            long interBurstTime = this.arrivalTimeOfFirstBurstyPacket - this.arrivalTimeOfLastBurstyPacketInLastBurst;
+//            System.out.println(interBurstTime);
+            if(interBurstTime<=0){
+                System.out.println("Error in inter burst1 "+this.interBurstTime+"\t"+interBurstTime);
+            }
             this.interBurstTime.add(interBurstTime);
         }
     }
     private void addNewBurst(Packet packet){
+        System.out.println("Burst2");
         // executes when maximum number of packets in burst is reached
         packetsInBurst.add(numberOfPacketsSinceLastBurst);
         bytesInEachBurst.add(traversedBytesInCurrentBurst);
-        long duration = arrivalTimeOfLastPacket - startTimeOfTheCurrentPeriod;
+        long duration = arrivalTimeOfLastBusrtyPacket - arrivalTimeOfFirstBurstyPacket;
+//        System.out.println(duration);
+        if(duration<=0){
+            System.out.println("Error2");
+        }
         burstsDuration.add(duration);
         if(burstsDuration.size()>1){
-            long interBurstTime =  startTimeOfTheCurrentPeriod -arrivalTimeOfLastBurstyPacketInLastBurst;
+            long interBurstTime =  arrivalTimeOfFirstBurstyPacket -arrivalTimeOfLastBurstyPacketInLastBurst;
+//            System.out.println(interBurstTime);
+            if(interBurstTime<=0){
+                System.out.println("Error in inter burst2");
+            }
             this.interBurstTime.add(interBurstTime);
         }
         // add inter-burst time
@@ -114,11 +140,8 @@ public class BurstEvents {
         // TODO: check numberOfPacketsSinceLastBurst to be 0 or 1 ????
         this.numberOfPacketsSinceLastBurst = 0;
         this.traversedBytesInCurrentBurst = 0;
-        this.startTimeOfTheCurrentPeriod = packet.getArrivalTime();
-        this.arrivalTimeOfLastBurstyPacketInLastBurst = arrivalTimeOfLastPacket;
-        this.arrivalTimeOfLastPacket = packet.getArrivalTime();
+        this.arrivalTimeOfLastBurstyPacketInLastBurst = arrivalTimeOfLastBusrtyPacket;
     }
-
     public ArrayList<Long> getInterBurstTime() {
         return interBurstTime;
     }

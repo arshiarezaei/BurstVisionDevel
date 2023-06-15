@@ -342,9 +342,6 @@ public class Results {
             System.out.println(e);
         }
     }
-    public static void CDFOfIntraBurstTime(){
-        // TODO: implement body of function, print results in results folder
-    }
     public static void calculateCDFOfBurstsDurationOfFlows(ArrayList<RawFlow> flows){
         // TODO: implement body of function, print results in results folder
 

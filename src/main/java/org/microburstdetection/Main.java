@@ -16,6 +16,7 @@ import org.microburstdetection.networkstack.layer4.UDP;
 import org.microburstdetection.packethandler.TcpUdpHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main {
 
@@ -50,10 +51,8 @@ public class Main {
         // print input and results paths
 //        System.out.println(inputFilePath);
 //        System.out.println(outputFilePath);
-
         String[] sourceFilePath = inputFilePath.split(",");
         String resultsPath = outputFilePath;
-
         // read pcap file
         try {
             for (String filePath:sourceFilePath) {
@@ -62,18 +61,27 @@ public class Main {
                 pcap.close();
             }
             // make directory to save results
-            Results.createDirsToStoreResults(resultsPath, Utilities.getDatasetFileName(sourceFilePath[0]));
-            // save general results into a single text file
-            Results.saveGeneralResultsToFile(FlowManager.getFlows());
-            Results.printCDFOfNumBurstsOfAllFlows(FlowManager.getFlows());
-            Results.calculateCDFOfBurstsDurationOfFlows(FlowManager.getFlows());
-            Results.saveCDFBytesTraversedBursts(FlowManager.getFlows());
-            Results.printCDFBytesTraversedBurstsToFile(FlowManager.getFlows(), TransportLayerProtocols.UDP.getTransportLayerProtocol());
-            Results.printCDFBytesTraversedBurstsToFile(FlowManager.getFlows(), TransportLayerProtocols.TCP.getTransportLayerProtocol());
-            Results.saveCDFOfFlowsThroughput(FlowManager.getFlows(), TraversedBytesUnits.KILOBYTES_PER_SECOND);
+//            Results.createDirsToStoreResults(resultsPath, Utilities.getDatasetFileName(sourceFilePath[0]));
+//            // save general results into a single text file
+//            Results.saveGeneralResultsToFile(FlowManager.getFlows());
+//            Results.printCDFOfNumBurstsOfAllFlows(FlowManager.getFlows());
+//            Results.calculateCDFOfBurstsDurationOfFlows(FlowManager.getFlows());
+//            Results.saveCDFBytesTraversedBursts(FlowManager.getFlows());
+//            Results.printCDFBytesTraversedBurstsToFile(FlowManager.getFlows(), TransportLayerProtocols.UDP.getTransportLayerProtocol());
+//            Results.printCDFBytesTraversedBurstsToFile(FlowManager.getFlows(), TransportLayerProtocols.TCP.getTransportLayerProtocol());
+//            Results.saveCDFOfFlowsThroughput(FlowManager.getFlows(), TraversedBytesUnits.KILOBYTES_PER_SECOND);
+//            Results.saveCDFOFInterBurstTime(FlowManager.getFlows());
 //            FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,TrafficType.HEAVY.getTrafficType(), IPV4.class, UDP.class);
-            FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,TrafficType.BURSTY.getTrafficType(), IPV4.class, TCP.class);
+//            FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,TrafficType.BURSTY.getTrafficType(), IPV4.class, TCP.class);
+            for (RawFlow rawFlow: FlowManager.getFlows()) {
+                System.out.println(rawFlow.getBurstEvents().getBurstsDuration());
+            }
+            System.out.println("-------");
+            for (RawFlow rawFlow: FlowManager.getFlows()) {
+                System.out.println(rawFlow.getBurstEvents().getInterBurstTime());
+            }
         }catch (Exception e){
+            System.out.println("Error in main");
             System.out.println(e);
         }
 

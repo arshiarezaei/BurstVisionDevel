@@ -64,7 +64,7 @@ public class FiveTupleFlow extends Flow implements RawFlow {
 //                this.burstEvents = new BurstEvents(packet);
             }
         } else if (packet.hasProtocol(Protocol.IPv6)) {
-            throw new Exception("IPV6 Packet");
+//            throw new Exception("IPV6 Packet");
         }
     }
 

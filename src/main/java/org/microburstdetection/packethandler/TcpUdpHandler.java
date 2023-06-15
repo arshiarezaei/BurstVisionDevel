@@ -29,7 +29,7 @@ public class TcpUdpHandler implements PacketHandler {
 //                System.out.println("Not parsed transport layer protocol");
 //            }
         }else if(packet.hasProtocol(Protocol.IPv6)) {
-            System.out.println("IPV6 protocol");
+//            System.out.println("IPV6 protocol");
         }else {
 //            System.out.println("Not parsed layer-3 protocol");
         }
