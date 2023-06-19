@@ -7,7 +7,7 @@ import org.microburstdetection.framework.utilities.TraversedBytesUnits;
 public interface RawFlow {
     boolean isBursty();
     boolean isHeavy();
-    BurstEvents getBurstEvents();
+    BurstEventHandler getBurstEvents();
     void newPacket(Packet packet);
     long getFirstPacketTime();
     long getlastPacketTime();

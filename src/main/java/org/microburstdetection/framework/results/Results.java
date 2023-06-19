@@ -86,10 +86,10 @@ public class Results {
         double counter=0;// this counter tracks the number of flows that has more than one packet
         for (RawFlow flow:flows) {
             if(flow.isBursty()){
-                packetsInBurstCounter += flow.getBurstEvents().getPacketsInBurst().size();
+                packetsInBurstCounter += flow.getBurstEvents().getTotalNumberOfPacketsInBursts();
                 avgBurstDuration += flow.getBurstEvents().getBurstsDuration().stream().mapToDouble(a->a).sum();
-                avgTraversedBytes += flow.getBurstEvents().getBytesInEachBurst().stream().mapToInt(a->a).sum();
-                avgNumBurstsInAllBurstyFlows += flow.getBurstEvents().getNumberOfBurstEvents();
+                avgTraversedBytes += flow.getBurstEvents().getTraversedBytesInEachBurst().stream().mapToInt(a->a).sum();
+                avgNumBurstsInAllBurstyFlows += flow.getBurstEvents().getNumberOfBursts();
                 if(flow.getNumberOfPackets()>1){
                     avgThroughputBurstyFlows+=flow.getAverageThroughputInBursts(TraversedBytesUnits.BYTES_PER_SECONDS);
                     counter++;
@@ -100,7 +100,7 @@ public class Results {
         avgNumPacketsInBursts = (int) (Math.ceil(packetsInBurstCounter/(numBurstyFlows*1.0)));
         avgBurstDuration = Utilities.getRoundedValue(avgBurstDuration/(numBurstyFlows*1.0));
         avgTraversedBytes = (int) Math.ceil(avgTraversedBytes/(numBurstyFlows*1.0));
-        avgNumBurstsInAllBurstyFlows =(int) Math.ceil(avgNumBurstsInAllBurstyFlows/(numBurstyFlows*1.0));
+        avgNumBurstsInAllBurstyFlows =(int) Math.floor(avgNumBurstsInAllBurstyFlows/(numBurstyFlows*1.0));
         avgThroughputBurstyFlows = Utilities.getRoundedValue(avgThroughputBurstyFlows/(counter*1.0));
         avgThroughput = Utilities.getRoundedValue(avgThroughput/(flows.size()*1.0));
         for (RawFlow rawFlow: flows) {
@@ -296,7 +296,7 @@ public class Results {
         ArrayList<Integer> numberOfBursts = new ArrayList<>() ;
         for (RawFlow rawFlow:flowsList) {
             if(rawFlow.isBursty()){
-                numberOfBursts.add(rawFlow.getBurstEvents().getNumberOfBurstEvents());
+                numberOfBursts.add(rawFlow.getBurstEvents().getNumberOfBursts());
             }
         }
         Double totalNumberOfBursts = numberOfBursts.size()*1.0;
@@ -401,7 +401,7 @@ public class Results {
         ArrayList<Integer> traversedBytesOfAllFlows = new ArrayList<>();
         for (RawFlow flow:flows) {
             if(flow.isBursty()){
-                traversedBytesOfAllFlows.addAll(flow.getBurstEvents().getBytesInEachBurst());
+                traversedBytesOfAllFlows.addAll(flow.getBurstEvents().getTraversedBytesInEachBurst());
             }
         }
         Map<Integer,Long> sortedFrequencyOfBursts = (traversedBytesOfAllFlows.stream()
@@ -455,7 +455,7 @@ public class Results {
         ArrayList<Integer> traversedBytesOfAllFlows = new ArrayList<>();
         for (RawFlow flow:flows) {
             if(flow.isBursty()&&((FiveTupleFlow) flow).getLayer4().getTransportProtocol()==transportLayerProtocol){
-                traversedBytesOfAllFlows.addAll(flow.getBurstEvents().getBytesInEachBurst());
+                traversedBytesOfAllFlows.addAll(flow.getBurstEvents().getTraversedBytesInEachBurst());
             }
         }
         Map<Integer, Double> sortedCDf = calculateCDF(traversedBytesOfAllFlows);
@@ -464,7 +464,7 @@ public class Results {
         writeCDFDataToFile(path,"dataset"+"\t\t"+"Bytes"+"\t\t\t"+"X%",sortedCDf);
     }
 
-    public static <T> void saveCDFOfFlowsThroughput(ArrayList<RawFlow> flows,TraversedBytesUnits T){
+    public static void saveCDFOfFlowsThroughput(ArrayList<RawFlow> flows,TraversedBytesUnits T){
        ArrayList<Double> arrayList = flows.stream().map(rawFlow -> Utilities.getRoundedValue(rawFlow.getAverageThroughput(T))).collect(Collectors.toCollection(ArrayList::new));
        arrayList.removeIf(aDouble -> aDouble.equals(0));
        // calculate sorted cdf of flows' throughput
@@ -476,7 +476,7 @@ public class Results {
         ArrayList<Long> allFlowInterBurstTime = new ArrayList<>();
         for (RawFlow rawFlow: flows ) {
             if(rawFlow.isBursty()){
-                allFlowInterBurstTime.addAll(rawFlow.getBurstEvents().getInterBurstTime());
+                allFlowInterBurstTime.addAll(rawFlow.getBurstEvents().getBurstInterBurstTime());
             }
         }
         Map sortedCDF = Results.calculateCDFLong(allFlowInterBurstTime);

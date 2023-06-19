@@ -8,7 +8,6 @@ import io.pkts.packet.TCPPacket;
 import io.pkts.packet.UDPPacket;
 import io.pkts.protocol.Protocol;
 
-import org.microburstdetection.framework.cnfg.HeavyFlowStaticProperties;
 import org.microburstdetection.framework.utilities.TraversedBytesUnits;
 import org.microburstdetection.framework.utilities.Utilities;
 import org.microburstdetection.networkstack.layer3.IPV4;
@@ -29,7 +28,7 @@ public class FiveTupleFlow extends Flow implements RawFlow {
     private int traversedBytes; // traversed bytes between first and last packets
     private boolean firstPacketArrived = false;
 
-    private BurstEvents burstEvents; // captures burst events
+    private BurstEventHandler burstEventHandler = new BurstEventHandler(); // captures burst events
 
     private FiveTupleFlow(Layer3 layer3, Layer4 layer4) {
         this.layer3 = layer3;
@@ -70,20 +69,20 @@ public class FiveTupleFlow extends Flow implements RawFlow {
 
     public void newPacket(Packet packet){
         if(firstPacketArrived){
-            this.burstEvents.newPacket(packet);
+            this.burstEventHandler.newPacket(packet);
             numberOfPackets+=1;
         }else {
-            this.burstEvents = new BurstEvents(packet);
+             burstEventHandler.newPacket(packet);
             firstPacketArrived=true;
-            this.firstPacketTime = packet.getArrivalTime();
+            this.firstPacketTime = Math.abs(packet.getArrivalTime());
             numberOfPackets=1;
         }
         this.increaseTraversedBytes(packet);
-        this.lastPacketTime = packet.getArrivalTime();
+        this.lastPacketTime = Math.abs(packet.getArrivalTime());
     }
     @Override
     public boolean isBursty() {
-        return this.burstEvents.getBurstsDuration().size() != 0;
+        return !this.burstEventHandler.getBurstEvents().isEmpty();
     }
 
     @Override
@@ -103,7 +102,7 @@ public class FiveTupleFlow extends Flow implements RawFlow {
     }
 
     public long flowLiveTime(){
-        return getlastPacketTime()-getFirstPacketTime();
+        return Math.abs(getlastPacketTime()-getFirstPacketTime());
     }
 
     @Override
@@ -125,12 +124,12 @@ public class FiveTupleFlow extends Flow implements RawFlow {
 
     @Override
     public int hashCode() {
-        return Objects.hash(layer3, layer4, burstEvents);
+        return Objects.hash(layer3, layer4, burstEventHandler);
     }
 
     @Override
-    public BurstEvents getBurstEvents() {
-        return burstEvents;
+    public BurstEventHandler getBurstEvents() {
+        return burstEventHandler;
     }
 
     @Override
@@ -141,14 +140,19 @@ public class FiveTupleFlow extends Flow implements RawFlow {
 
     @Override
     public double getAverageThroughput(TraversedBytesUnits T) {
-        return (getNumberOfPackets()<=3) ? 0:(getTraversedBytes()/(flowLiveTime()*1.0)*Math.pow(10,T.getTraversedBytesUnits()));//*Math.pow(10,pow);
+//        return (getNumberOfPackets()<=2) ? 0:(getTraversedBytes()/(flowLiveTime()*1.0)*Math.pow(10,T.getTraversedBytesUnits()));//*Math.pow(10,pow);
+//        double t = getTraversedBytes()/(flowLiveTime()*1.0);
+//        if(t<=0){
+//            System.out.println(flowLiveTime()+"\t"+numberOfPackets+"\t"+layer3+"\t"+layer4);
+//        }
+        return (getNumberOfPackets()==1) ? 0:(getTraversedBytes()/(flowLiveTime()*1.0))*Math.pow(10,T.getTraversedBytesUnits());
     }
 
     @Override
     public  Double getAverageThroughputInBursts(TraversedBytesUnits T) {
         // TODO: throws Exception if the flow is not bursty
         if(this.isBursty()){
-            return  this.burstEvents.getAverageBurstThroughput(T);
+            return  this.burstEventHandler.getAverageThroughputInBursts();
         }
         return null;
     }

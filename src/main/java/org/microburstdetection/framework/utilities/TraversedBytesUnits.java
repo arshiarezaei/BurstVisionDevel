@@ -15,9 +15,9 @@ public enum TraversedBytesUnits {
     @Override
     public String toString() {
         switch (this){
-            case  BYTES_PER_SECONDS -> {return "B/s";}
-            case KILOBYTES_PER_SECOND -> {return "KB/s";}
-            case MEGABYTE_PER_SECOND -> {return "MB/s";}
+            case  BYTES_PER_SECONDS -> {return "B/us";}
+            case KILOBYTES_PER_SECOND -> {return "KB/us";}
+            case MEGABYTE_PER_SECOND -> {return "MB/us";}
             default -> {
                 return "Error";
             }
