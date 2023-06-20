@@ -1,15 +1,16 @@
 package org.microburstdetection.framework;
 
 import io.pkts.packet.Packet;
+import org.microburstdetection.framework.cnfg.ConfigurationParameters;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 
 public class BurstEventHandler {
-    long THRESHOLD = 500;
-    int MINIMUM_NUMBER_OF_PACKETS_IN_BURST = 3;
-    int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST = 100;
+    long THRESHOLD = ConfigurationParameters.getBurstParameters().getTHRESHOLD();
+    int MINIMUM_NUMBER_OF_PACKETS_IN_BURST = ConfigurationParameters.getBurstParameters().getMINIMUM_NUMBER_OF_PACKETS_IN_BURST();
+    int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST = ConfigurationParameters.getBurstParameters().getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST();
     private final ArrayList<BurstEvent> burstEvents = new ArrayList<>();
     // temp variables
     private int numberOfPacketsSinceLastBurst;
