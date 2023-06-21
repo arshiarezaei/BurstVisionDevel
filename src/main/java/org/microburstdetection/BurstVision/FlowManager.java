@@ -1,9 +1,9 @@
-package org.microburstdetection.framework;
+package org.microburstdetection.BurstVision;
 
 import io.pkts.packet.IPv4Packet;
 import io.pkts.packet.Packet;
 import io.pkts.protocol.Protocol;
-import org.microburstdetection.framework.cnfg.TrafficType;
+import org.microburstdetection.BurstVision.cnfg.TrafficType;
 
 import java.util.ArrayList;
 import java.util.List;

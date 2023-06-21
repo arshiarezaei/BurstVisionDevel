@@ -1,4 +1,4 @@
-package org.microburstdetection.framework.cnfg;
+package org.microburstdetection.BurstVision.cnfg;
 
 public class HeavyFlowStaticProperties {
     private static Double HeavyFlowThroughputThreshold; // Unit: bytes per second

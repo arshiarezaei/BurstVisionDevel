@@ -1,4 +1,4 @@
-package org.microburstdetection.framework.cnfg;
+package org.microburstdetection.BurstVision.cnfg;
 
 public class ConfigurationParameters {
     private static final   BurstParameters burstParameters = new BurstParameters();

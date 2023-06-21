@@ -1,4 +1,4 @@
-package org.microburstdetection.framework.cnfg;
+package org.microburstdetection.BurstVision.cnfg;
 
 public enum TrafficType {
     HEAVY(0),BURSTY(1);

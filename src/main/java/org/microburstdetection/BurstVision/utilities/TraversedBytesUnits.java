@@ -1,4 +1,4 @@
-package org.microburstdetection.framework.utilities;
+package org.microburstdetection.BurstVision.utilities;
 
 public enum TraversedBytesUnits {
     BYTES_PER_SECONDS(0),KILOBYTES_PER_SECOND(3),MEGABYTE_PER_SECOND(6);

@@ -1,5 +1,5 @@
 
-package org.microburstdetection.framework.results;
+package org.microburstdetection.BurstVision.results;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -10,14 +10,14 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.microburstdetection.framework.FiveTupleFlow;
-import org.microburstdetection.framework.FlowManager;
-import org.microburstdetection.framework.RawFlow;
-import org.microburstdetection.framework.cnfg.BurstParameters;
-import org.microburstdetection.framework.cnfg.ConfigurationParameters;
-import org.microburstdetection.framework.cnfg.TrafficType;
-import org.microburstdetection.framework.utilities.TraversedBytesUnits;
-import org.microburstdetection.framework.utilities.Utilities;
+import org.microburstdetection.BurstVision.FiveTupleFlow;
+import org.microburstdetection.BurstVision.FlowManager;
+import org.microburstdetection.BurstVision.RawFlow;
+import org.microburstdetection.BurstVision.cnfg.BurstParameters;
+import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
+import org.microburstdetection.BurstVision.cnfg.TrafficType;
+import org.microburstdetection.BurstVision.utilities.TraversedBytesUnits;
+import org.microburstdetection.BurstVision.utilities.Utilities;
 import org.microburstdetection.networkstack.layer3.IPV4;
 import org.microburstdetection.networkstack.layer4.TCP;
 import org.microburstdetection.networkstack.layer4.TransportLayerProtocols;

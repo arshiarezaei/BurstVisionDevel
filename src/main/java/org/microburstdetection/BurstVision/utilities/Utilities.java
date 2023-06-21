@@ -1,4 +1,4 @@
-package org.microburstdetection.framework.utilities;
+package org.microburstdetection.BurstVision.utilities;
 
 import io.pkts.packet.Packet;
 

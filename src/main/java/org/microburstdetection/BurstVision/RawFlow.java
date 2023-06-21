@@ -1,7 +1,7 @@
-package org.microburstdetection.framework;
+package org.microburstdetection.BurstVision;
 
 import io.pkts.packet.Packet;
-import org.microburstdetection.framework.utilities.TraversedBytesUnits;
+import org.microburstdetection.BurstVision.utilities.TraversedBytesUnits;
 
 import java.util.ArrayList;
 

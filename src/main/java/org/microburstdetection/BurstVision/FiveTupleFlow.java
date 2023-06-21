@@ -1,4 +1,4 @@
-package org.microburstdetection.framework;
+package org.microburstdetection.BurstVision;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -10,8 +10,8 @@ import io.pkts.packet.TCPPacket;
 import io.pkts.packet.UDPPacket;
 import io.pkts.protocol.Protocol;
 
-import org.microburstdetection.framework.utilities.TraversedBytesUnits;
-import org.microburstdetection.framework.utilities.Utilities;
+import org.microburstdetection.BurstVision.utilities.TraversedBytesUnits;
+import org.microburstdetection.BurstVision.utilities.Utilities;
 import org.microburstdetection.networkstack.layer3.IPV4;
 import org.microburstdetection.networkstack.layer3.Layer3;
 import org.microburstdetection.networkstack.layer4.Layer4;

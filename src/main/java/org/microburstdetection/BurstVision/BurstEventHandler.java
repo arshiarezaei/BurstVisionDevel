@@ -1,7 +1,7 @@
-package org.microburstdetection.framework;
+package org.microburstdetection.BurstVision;
 
 import io.pkts.packet.Packet;
-import org.microburstdetection.framework.cnfg.ConfigurationParameters;
+import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -135,21 +135,4 @@ public class BurstEventHandler {
 //        arrivalTimeOfLastBurstyPacket= packet.getArrivalTime();
 //        arrivalTimeOfFirstBurstyPacket = packet.getArrivalTime();
     }
-
-//    public double  getAverageBurstThroughput(TraversedBytesUnits T ){
-//        // check for correct function
-////        if(getBurstsDuration().size()!=getBytesInEachBurst().size()){
-////            System.out.println("ERROR");
-////        }
-////        long sumBurstsDuration=0;
-////        int sumTraversedBytes = 0;
-////        Iterator iterator = getBurstsDuration().iterator();
-////        Iterator iterator1 = getBytesInEachBurst().iterator();
-////        while (iterator.hasNext() && iterator1.hasNext() ){
-////            sumBurstsDuration += (long) iterator.next();
-////            sumTraversedBytes += (int) iterator1.next();
-////        }
-////        return (sumTraversedBytes/(sumBurstsDuration*1.0))*Math.pow(10,(T.getTraversedBytesUnits()));
-//        return 0;
-//    }
 }
