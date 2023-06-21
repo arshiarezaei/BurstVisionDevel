@@ -1,6 +1,8 @@
 package org.microburstdetection.framework;
 
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import io.pkts.packet.IPv4Packet;
 import io.pkts.packet.Packet;
@@ -145,7 +147,7 @@ public class FiveTupleFlow extends Flow implements RawFlow {
 //        if(t<=0){
 //            System.out.println(flowLiveTime()+"\t"+numberOfPackets+"\t"+layer3+"\t"+layer4);
 //        }
-        return (getNumberOfPackets()==1) ? 0:(getTraversedBytes()/(flowLiveTime()*1.0))*Math.pow(10,T.getTraversedBytesUnits());
+        return (getNumberOfPackets()==1) ? 0:(getTraversedBytes()*1.0/(flowLiveTime()*1.0))*Math.pow(10,T.getTraversedBytesUnits());
     }
 
     @Override
@@ -155,5 +157,21 @@ public class FiveTupleFlow extends Flow implements RawFlow {
             return  this.burstEventHandler.getAverageThroughputInBursts();
         }
         return null;
+    }
+
+    @Override
+    public ArrayList<Double> getThroughputInEachBurst() {
+        return burstEventHandler.getThroughputInEachBurst();
+    }
+
+    @Override
+    public ArrayList<Double> getListOfBurstsRatio() {
+        ArrayList<Double> listOfBurstsRatio = new ArrayList<>();
+        double avgThroughput= getAverageThroughput(TraversedBytesUnits.BYTES_PER_SECONDS);
+        ArrayList<Double> listOfThroughputInEachBurst = getThroughputInEachBurst();
+        if(isBursty()){
+            listOfBurstsRatio =  listOfThroughputInEachBurst.stream().map(th -> th/avgThroughput).collect(Collectors.toCollection(ArrayList::new));
+        }
+        return listOfBurstsRatio;
     }
 }

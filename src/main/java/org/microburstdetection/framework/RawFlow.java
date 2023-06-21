@@ -3,6 +3,8 @@ package org.microburstdetection.framework;
 import io.pkts.packet.Packet;
 import org.microburstdetection.framework.utilities.TraversedBytesUnits;
 
+import java.util.ArrayList;
+
 
 public interface RawFlow {
     boolean isBursty();
@@ -17,5 +19,7 @@ public interface RawFlow {
     double getAverageThroughput(TraversedBytesUnits T);
     Double getAverageThroughputInBursts(TraversedBytesUnits T);
     void increaseTraversedBytes(Packet packet);
+    ArrayList<Double> getListOfBurstsRatio();
+    ArrayList<Double> getThroughputInEachBurst();
     boolean equals(Object o);
 }

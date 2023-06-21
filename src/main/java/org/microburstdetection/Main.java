@@ -71,8 +71,9 @@ public class Main {
             Results.saveCDFBytesTraversedBursts(FlowManager.getFlows());
             Results.printCDFBytesTraversedBurstsToFile(FlowManager.getFlows(), TransportLayerProtocols.UDP.getTransportLayerProtocol());
             Results.printCDFBytesTraversedBurstsToFile(FlowManager.getFlows(), TransportLayerProtocols.TCP.getTransportLayerProtocol());
-            Results.saveCDFOfFlowsThroughput(FlowManager.getFlows(), TraversedBytesUnits.KILOBYTES_PER_SECOND);
-            Results.saveCDFOFInterBurstTime(FlowManager.getFlows());
+            Results.saveCDFOfFlowsThroughput(FlowManager.getFlows(), TraversedBytesUnits.BYTES_PER_SECONDS);
+            Results.saveCDFOFInterBurstTime (FlowManager.getFlows());
+            Results.saveCDFOfBurstRatio(FlowManager.getFlows());
 //            FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,TrafficType.HEAVY.getTrafficType(), IPV4.class, UDP.class);
 //            FlowManager.getNumberOfFlowsByType(FiveTupleFlow.class,TrafficType.BURSTY.getTrafficType(), IPV4.class, TCP.class);
             ArrayList<RawFlow> flows = FlowManager.getFlows();
@@ -85,7 +86,7 @@ public class Main {
 //            }
         }catch (Exception e){
             System.out.println("Error in main");
-            System.out.println(e);
+            System.out.println(Arrays.toString(e.getStackTrace()));
         }
 
     }

@@ -89,7 +89,7 @@ public class Results {
         for (RawFlow flow:flows) {
             if(flow.isBursty()){
                 packetsInBurstCounter += flow.getBurstEvents().getTotalNumberOfPacketsInBursts();
-                avgBurstDuration += flow.getBurstEvents().getBurstsDuration().stream().mapToDouble(a->a).sum();
+                avgBurstDuration += flow.getBurstEvents().getBurstsDuration().stream().mapToLong(a->a).sum();
                 avgTraversedBytes += flow.getBurstEvents().getTraversedBytesInEachBurst().stream().mapToInt(a->a).sum();
                 avgNumBurstsInAllBurstyFlows += flow.getBurstEvents().getNumberOfBursts();
                 if(flow.getNumberOfPackets()>1){
@@ -100,7 +100,8 @@ public class Results {
             avgThroughput += flow.getAverageThroughput(TraversedBytesUnits.BYTES_PER_SECONDS);
         }
         avgNumPacketsInBursts = (int) (Math.ceil(packetsInBurstCounter/(numBurstyFlows*1.0)));
-        avgBurstDuration = Utilities.getRoundedValue(avgBurstDuration/(numBurstyFlows*1.0));
+        int totalNumBursts = flows.stream().mapToInt(a-> a.getBurstEvents().getNumberOfBursts()).sum();
+        avgBurstDuration = Utilities.getRoundedValue(avgBurstDuration/(totalNumBursts*1.0));
         avgTraversedBytes = (int) Math.ceil(avgTraversedBytes/(numBurstyFlows*1.0));
         avgNumBurstsInAllBurstyFlows =(int) Math.floor(avgNumBurstsInAllBurstyFlows/(numBurstyFlows*1.0));
         avgThroughputBurstyFlows = Utilities.getRoundedValue(avgThroughputBurstyFlows/(counter*1.0));
@@ -120,7 +121,7 @@ public class Results {
             fileWriter.write(
                     "Dataset\t "+dataSetName+"\n"+
                             "Threshold\t"+ ConfigurationParameters.getBurstParameters().getTHRESHOLD()+" micro-seconds\n"+
-                            "Minimum number of packets to detect a burst\t"+ConfigurationParameters.getBurstParameters().getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST()+"\n"+
+                            "Minimum number of packets to detect a burst\t"+ConfigurationParameters.getBurstParameters().getMINIMUM_NUMBER_OF_PACKETS_IN_BURST()+"\n"+
                             "Maximum number of packets in a burst event\t"+ ConfigurationParameters.getBurstParameters().getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST()+"\n"+
                             "Number of flows\t" + numFlows + "\n"+
                             "Number of TCP flows\t" + numTCPFlows + "\n"+
@@ -470,7 +471,7 @@ public class Results {
     }
 
     public static void saveCDFOfFlowsThroughput(ArrayList<RawFlow> flows,TraversedBytesUnits T){
-       ArrayList<Double> arrayList = flows.stream().map(rawFlow -> Utilities.getRoundedValue(rawFlow.getAverageThroughput(T))).collect(Collectors.toCollection(ArrayList::new));
+       ArrayList<Double> arrayList = flows.stream().map(rawFlow -> rawFlow.getAverageThroughput(T)).collect(Collectors.toCollection(ArrayList::new));
        arrayList.removeIf(aDouble -> aDouble.equals(0));
        // calculate sorted cdf of flows' throughput
         String path = Results.resultsDir+"/"+"cdf_flow_throughput.txt";
@@ -487,6 +488,18 @@ public class Results {
         Map sortedCDF = Results.calculateCDFLong(allFlowInterBurstTime);
         String path = Results.resultsDir+"/"+"cdf_inter-burst_time.txt";
         String header = "dataset"+"\t\t"+"inter-burst(us)"+"\t\t\t"+"X%";
+        Results.writeCDFDataToFile(path,header,sortedCDF);
+    }
+    public static void saveCDFOfBurstRatio(ArrayList<RawFlow> flows){
+        ArrayList<Double> burstRatioOfAllFlows = new ArrayList<>();
+        for (RawFlow rawFlow: flows ) {
+            if(rawFlow.isBursty()){
+               burstRatioOfAllFlows.addAll(rawFlow.getListOfBurstsRatio());
+            }
+        }
+        Map sortedCDF = Results.calculateCDFDouble(burstRatioOfAllFlows);
+        String path = Results.resultsDir+"/"+"cdf_burst_ratio.txt";
+        String header = "dataset"+"\t\t"+"burst ratio"+"\t\t\t"+"X%";
         Results.writeCDFDataToFile(path,header,sortedCDF);
     }
 }

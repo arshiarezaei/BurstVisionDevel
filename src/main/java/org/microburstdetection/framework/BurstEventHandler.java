@@ -4,6 +4,7 @@ import io.pkts.packet.Packet;
 import org.microburstdetection.framework.cnfg.ConfigurationParameters;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 
@@ -71,8 +72,8 @@ public class BurstEventHandler {
     }
     public ArrayList<Long> getBurstInterBurstTime(){
         ArrayList<Long> burstInterArrivalTime = new ArrayList<>();
-        if(burstEvents.size()>2){
-            for (int i = 0; i < this.burstEvents.size(); i++) {
+        if(burstEvents.size()>=2){
+            for (int i = 0; i < this.burstEvents.size()-1; i++) {
                 long endOfCurrentBurst = burstEvents.get(i).getArrivalTimeOfLastPacket();
                 long startOfNextBurst = this.burstEvents.get(i+1).arrivalTimeOfFirstPacket();
                 burstInterArrivalTime.add(startOfNextBurst-endOfCurrentBurst);
@@ -113,6 +114,19 @@ public class BurstEventHandler {
     }
     public ArrayList<Integer> getNumberOfPacketsInEachBurst(){
         return burstEvents.stream().map(BurstEvent::getNumberOfPackets).collect(Collectors.toCollection(ArrayList::new));
+    }
+    public ArrayList<Double> getThroughputInEachBurst(){
+        ArrayList<Double> throughputInEachBurst = new ArrayList<>();
+        //FiXMe:
+        if(getBurstsDuration().size()!=getTraversedBytesInEachBurst().size()){
+            System.out.println("ERROR->getThroughputInEachBurst()");
+        }
+        Iterator<Long> i1 = getBurstsDuration().iterator();
+        Iterator<Integer> i2 = getTraversedBytesInEachBurst().iterator();
+        while(i1.hasNext() && i2.hasNext()) {
+            throughputInEachBurst.add((i2.next())*1.0/(i1.next()*1.0));
+        }
+        return throughputInEachBurst;
     }
     private void resetBurstParameters(Packet packet){
         numberOfPacketsSinceLastBurst=0;

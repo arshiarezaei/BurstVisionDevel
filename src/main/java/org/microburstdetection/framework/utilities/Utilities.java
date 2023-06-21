@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 public class Utilities {
-    static DecimalFormat df = new DecimalFormat("#.##");
+    static DecimalFormat df = new DecimalFormat("#.#######");
     private static final Utilities utilities = new Utilities();
     private Utilities() {}
 
