@@ -10,10 +10,8 @@ import java.io.IOException;
 
 
 class TrafficHandler implements PacketHandler {
-
     @Override
-    public boolean nextPacket(Packet packet) throws IOException {
-
+    public boolean nextPacket(Packet packet){
 //         Check the packet protocol
         try {
             if (packet.hasProtocol(Protocol.IPv4)){
@@ -22,6 +20,7 @@ class TrafficHandler implements PacketHandler {
                     TrafficBasedAnalyser.newPacketArrived(iPv4Packet);
                 }
             }else if(packet.hasProtocol(Protocol.IPv6)) {
+//                System.out.println("Add implementation of IPV6");
             }
         }catch (Exception e){
             System.out.println(e);

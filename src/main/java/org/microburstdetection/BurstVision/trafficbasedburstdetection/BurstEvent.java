@@ -4,7 +4,7 @@ import org.microburstdetection.BurstVision.trafficbasedburstdetection.Flow;
 
 import java.util.ArrayList;
 
-public record BurstEvent(int numberOfBurstyPackets, int traversedBytes, long arrivalTimeOfFirstPacket, long arrivalTimeOfLastPacket,
+record BurstEvent(int numberOfBurstyPackets, int traversedBytes, long arrivalTimeOfFirstPacket, long arrivalTimeOfLastPacket,
                          ArrayList<Flow> flowsContributedToBurst) {
 
     public int getNumberOfPackets() {
@@ -22,6 +22,16 @@ public record BurstEvent(int numberOfBurstyPackets, int traversedBytes, long arr
     public long getArrivalTimeOfLastPacket() {
         return arrivalTimeOfLastPacket;
     }
+
+    @Override
+    public ArrayList<Flow> flowsContributedToBurst() {
+        return flowsContributedToBurst;
+    }
+    public int getNumberOfConcurrentBurstyFlows(){
+        return flowsContributedToBurst.size();
+    }
+
+
     public long getBurstDuration(){
         return arrivalTimeOfLastPacket-arrivalTimeOfFirstPacket;
     }

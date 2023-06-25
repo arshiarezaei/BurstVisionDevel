@@ -1,13 +1,9 @@
 package org.microburstdetection.BurstVision.trafficbasedburstdetection;
 
 
-import java.util.ArrayList;
-
-
 import io.pkts.packet.Packet;
 
-import org.microburstdetection.BurstVision.trafficbasedburstdetection.BurstEventHandler;
-import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
+
 
 
 public class TrafficBasedAnalyser {
@@ -43,19 +39,26 @@ public class TrafficBasedAnalyser {
     public static BurstEventHandler getBurstEventHandler() {
         return burstEventHandler;
     }
+    public static double getAvgThroughput(){
+        return  (getCapturedBytes()*1.0 )/ (getCapturingTime()*1.0);
+    }
 
     public static void newPacketArrived(Packet packet){
         if(firstPacketArrived){
             // updating statistics
             arrivalTimeOfLastPacket = packet.getArrivalTime();
             increaseNumCapturedPackets();
-            increaseCapturedBytes(packet.getPayload().getArray().length);
+            increaseCapturedBytes(packet.getParentPacket().getPayload().getArray().length);
             burstEventHandler.newPacket(packet);
         }else {
             firstPacketArrived=true;
             arrivalTimeOfFirstPacket = packet.getArrivalTime();
             arrivalTimeOfLastPacket = packet.getArrivalTime();
             arrivalTimeOfPreviousPacket = packet.getArrivalTime();
+            increaseNumCapturedPackets();
+            increaseCapturedBytes(packet.getParentPacket().getPayload().getArray().length);
         }
     }
+
+
 }

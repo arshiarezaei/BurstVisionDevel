@@ -3,6 +3,7 @@ package org.microburstdetection.BurstVision.trafficbasedburstdetection;
 import io.pkts.packet.Packet;
 
 import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
+import org.microburstdetection.BurstVision.utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -136,6 +137,19 @@ public class BurstEventHandler {
 
     public double getAverageBurstThroughput(){
         long sumBurstsDuration = burstEvents.stream().mapToLong(BurstEvent::getBurstDuration).sum();
-        return (sumBurstsDuration*1.0)/(burstEvents.size()*1.0);
+        long sumTraversedBytes = burstEvents.stream().mapToInt(BurstEvent::getTraversedBytes).sum();
+        return (sumTraversedBytes*1.0)/(sumBurstsDuration*1.0);
+    }
+
+    public ArrayList<Double> getAveragePacketSize(){
+        ArrayList<Double> avgPktSize = new ArrayList<>();
+        ArrayList<Integer> listNumPacketsEachBurst = TrafficBasedAnalyser.getBurstEventHandler().getNumberOfPacketsInEachBurst();
+        ArrayList<Integer> listTraversedByteEachBurst = TrafficBasedAnalyser.getBurstEventHandler().getTraversedBytesInEachBurst();
+        Iterator<Integer> i1 = listNumPacketsEachBurst.iterator();
+        Iterator<Integer> i2 = listTraversedByteEachBurst.iterator();
+        while (i1.hasNext() && i2.hasNext()){
+            avgPktSize.add(Utilities.getRoundedValue((double)i2.next())/((double) i1.next()));
+        }
+        return avgPktSize;
     }
 }
