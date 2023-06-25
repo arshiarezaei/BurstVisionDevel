@@ -1,16 +1,11 @@
-package org.microburstdetection.BurstVision.trafficbasedburstdetection;
+package org.microburstdetection.BurstVision.workingmodes.trafficbasedburstdetection;
 
 import io.pkts.Pcap;
 import org.apache.commons.cli.*;
-import org.microburstdetection.BurstVision.utilities.ResultsProvider;
 import org.microburstdetection.BurstVision.utilities.Utilities;
-import org.microburstdetection.packethandler.TcpUdpHandler;
-import org.microburstdetection.BurstVision.trafficbasedburstdetection.BurstEvent;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 

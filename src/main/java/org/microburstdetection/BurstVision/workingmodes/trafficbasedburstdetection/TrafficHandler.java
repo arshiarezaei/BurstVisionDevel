@@ -1,12 +1,8 @@
-package org.microburstdetection.BurstVision.trafficbasedburstdetection;
+package org.microburstdetection.BurstVision.workingmodes.trafficbasedburstdetection;
 
 import io.pkts.PacketHandler;
 import io.pkts.packet.*;
 import io.pkts.protocol.Protocol;
-import org.microburstdetection.BurstVision.FlowManager;
-import org.microburstdetection.BurstVision.trafficbasedburstdetection.TrafficBasedAnalyser;
-
-import java.io.IOException;
 
 
 class TrafficHandler implements PacketHandler {

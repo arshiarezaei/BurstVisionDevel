@@ -1,4 +1,4 @@
-package org.microburstdetection.BurstVision;
+package org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis;
 
 import io.pkts.packet.Packet;
 import org.microburstdetection.BurstVision.utilities.TraversedBytesUnits;

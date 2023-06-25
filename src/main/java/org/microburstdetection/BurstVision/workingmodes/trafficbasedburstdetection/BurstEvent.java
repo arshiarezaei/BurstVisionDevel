@@ -1,6 +1,4 @@
-package org.microburstdetection.BurstVision.trafficbasedburstdetection;
-
-import org.microburstdetection.BurstVision.trafficbasedburstdetection.Flow;
+package org.microburstdetection.BurstVision.workingmodes.trafficbasedburstdetection;
 
 import java.util.ArrayList;
 

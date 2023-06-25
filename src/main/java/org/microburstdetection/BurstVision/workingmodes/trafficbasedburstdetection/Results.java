@@ -1,4 +1,4 @@
-package org.microburstdetection.BurstVision.trafficbasedburstdetection;
+package org.microburstdetection.BurstVision.workingmodes.trafficbasedburstdetection;
 
 import java.io.File;
 import java.io.FileWriter;

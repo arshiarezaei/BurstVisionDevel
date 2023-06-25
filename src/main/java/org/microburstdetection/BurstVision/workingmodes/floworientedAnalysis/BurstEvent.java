@@ -1,4 +1,4 @@
-package org.microburstdetection.BurstVision;
+package org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis;
 
 import java.math.BigInteger;
 

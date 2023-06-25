@@ -1,4 +1,4 @@
-package org.microburstdetection.BurstVision;
+package org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis;
 
 import io.pkts.packet.IPv4Packet;
 import io.pkts.packet.Packet;

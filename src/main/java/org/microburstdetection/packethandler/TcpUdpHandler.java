@@ -3,7 +3,8 @@ package org.microburstdetection.packethandler;
 import io.pkts.PacketHandler;
 import io.pkts.packet.*;
 import io.pkts.protocol.Protocol;
-import org.microburstdetection.BurstVision.FlowManager;
+import org.microburstdetection.BurstVision.cnfg.WorkingModes;
+import org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis.FlowManager;
 
 import java.io.IOException;
 

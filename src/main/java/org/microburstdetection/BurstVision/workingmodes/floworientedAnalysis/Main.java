@@ -1,9 +1,9 @@
-package org.microburstdetection;
+package org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis;
 
 import io.pkts.Pcap;
 import org.apache.commons.cli.*;
-import org.microburstdetection.BurstVision.FlowManager;
-import org.microburstdetection.BurstVision.RawFlow;
+import org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis.FlowManager;
+import org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis.RawFlow;
 import org.microburstdetection.BurstVision.results.Results;
 import org.microburstdetection.BurstVision.utilities.TraversedBytesUnits;
 import org.microburstdetection.BurstVision.utilities.Utilities;

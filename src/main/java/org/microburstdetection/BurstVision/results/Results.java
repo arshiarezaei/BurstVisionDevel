@@ -10,9 +10,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.microburstdetection.BurstVision.FiveTupleFlow;
-import org.microburstdetection.BurstVision.FlowManager;
-import org.microburstdetection.BurstVision.RawFlow;
+import org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis.FiveTupleFlow;
+import org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis.FlowManager;
+import org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis.RawFlow;
 import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
 import org.microburstdetection.BurstVision.cnfg.TrafficType;
 import org.microburstdetection.BurstVision.utilities.TraversedBytesUnits;
