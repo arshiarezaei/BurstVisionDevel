@@ -126,7 +126,7 @@ public class FiveTupleFlow extends Flow implements RawFlow {
 
     @Override
     public int hashCode() {
-        return Objects.hash(layer3, layer4, burstEventHandler);
+        return Objects.hash(layer3, layer4);
     }
 
     @Override

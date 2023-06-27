@@ -22,4 +22,5 @@ public interface RawFlow {
     ArrayList<Double> getListOfBurstsRatio();
     ArrayList<Double> getThroughputInEachBurst();
     boolean equals(Object o);
+    int hashCode();
 }

@@ -37,7 +37,7 @@ public class Results {
         Results.resultsDir = baseDir;
         Results.dataSetName  = dataSetName;
         //TODO: add implementation of append=false
-        baseDir = baseDir+"/"+Results.dataSetName;
+        baseDir = baseDir+"/"+"flow-oriented_analysis/"+ Results.dataSetName;
         Path path = Paths.get(baseDir);
         Path testPath;
         // The following if-else block checks for not existing of results' path
