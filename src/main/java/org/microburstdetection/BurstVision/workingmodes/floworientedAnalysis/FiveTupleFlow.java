@@ -174,4 +174,10 @@ public class FiveTupleFlow extends Flow implements RawFlow {
         }
         return listOfBurstsRatio;
     }
+
+    @Override
+    public ArrayList<Integer> getBitRate() {
+        // TODO:
+        return null;
+    }
 }

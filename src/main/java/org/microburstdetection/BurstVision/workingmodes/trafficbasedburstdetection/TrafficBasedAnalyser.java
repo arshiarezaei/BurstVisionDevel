@@ -44,12 +44,12 @@ public class TrafficBasedAnalyser {
     }
 
     public static void newPacketArrived(Packet packet){
+        burstEventHandler.newPacket(packet);
         if(firstPacketArrived){
             // updating statistics
             arrivalTimeOfLastPacket = packet.getArrivalTime();
             increaseNumCapturedPackets();
             increaseCapturedBytes(packet.getParentPacket().getPayload().getArray().length);
-            burstEventHandler.newPacket(packet);
         }else {
             firstPacketArrived=true;
             arrivalTimeOfFirstPacket = packet.getArrivalTime();

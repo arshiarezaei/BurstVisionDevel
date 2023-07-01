@@ -21,6 +21,7 @@ public interface RawFlow {
     void increaseTraversedBytes(Packet packet);
     ArrayList<Double> getListOfBurstsRatio();
     ArrayList<Double> getThroughputInEachBurst();
+    ArrayList<Integer> getBitRate();
     boolean equals(Object o);
     int hashCode();
 }

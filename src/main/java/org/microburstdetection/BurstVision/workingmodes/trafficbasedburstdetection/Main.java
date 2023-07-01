@@ -2,10 +2,14 @@ package org.microburstdetection.BurstVision.workingmodes.trafficbasedburstdetect
 
 import io.pkts.Pcap;
 import org.apache.commons.cli.*;
+import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
+import org.microburstdetection.BurstVision.cnfg.TrafficMonitoringParameters;
 import org.microburstdetection.BurstVision.utilities.Utilities;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 
@@ -41,6 +45,7 @@ public class Main {
 //        System.out.println(outputFilePath);
         String[] sourceFilePath = inputFilePath.split(",");
         String resultsPath = outputFilePath;
+        ConfigurationParameters.setConfigurationParameters(new TrafficMonitoringParameters(10_000,20),null);
         // read pcap file
         try {
             for (String filePath : sourceFilePath) {
@@ -48,25 +53,10 @@ public class Main {
                 pcap.loop(new TrafficHandler());
                 pcap.close();
             }
-            Results.createDirsToStoreResults(resultsPath, Utilities.getDatasetFileName(sourceFilePath[0]));
-            Results.saveGeneralResultsToFile();
-            Results.generateCDFOfBurstDuration(TrafficBasedAnalyser.getBurstEventHandler().getBurstsDuration());
-            Results.generateCDFOfNumberOfPacketsInEachBurst(TrafficBasedAnalyser.getBurstEventHandler().getBurstEvents());
-            Results.generateCDFOfTraversedBytesInEachBurst(TrafficBasedAnalyser.getBurstEventHandler().getTraversedBytesInEachBurst());
-            Results.generateCDFOfInterBurstTime(TrafficBasedAnalyser.getBurstEventHandler().getBurstInterBurstTime());
-            ArrayList<Integer> listFlowsContributeToBurst = TrafficBasedAnalyser.getBurstEventHandler().getBurstEvents().stream().
-                    map(a->a.flowsContributedToBurst().size()).collect(Collectors.toCollection(ArrayList::new));
-            Results.generateCDFOfNumberOfFlowsContributingToBursts(listFlowsContributeToBurst);
-            Results.generateCDFAveragePacketSize(TrafficBasedAnalyser.getBurstEventHandler().getAveragePacketSize());
-
-//            ArrayList arrayList = (TrafficBasedAnalyser.getBurstEventHandler().getBurstEvents()).
-//                    stream().mapToInt(BurstEvent::getNumberOfPackets).collect(Collectors.toCollection(ArrayList::new));
-//            ArrayList<Integer> arrayList= TrafficBasedAnalyser.getBurstEventHandler().getBurstEvents()
-//                    .stream().map(BurstEvent::getNumberOfPackets).collect(Collectors.toCollection(ArrayList::new));
-
-//        ArrayList<BurstEvent> burstEvents = TrafficBasedAnalyser.getBurstEventHandler().getBurstEvents();
-//        System.out.println(Collections.max(burstEvents.stream().map(a->a.getNumberOfConcurrentBurstyFlows()).collect(Collectors.toList())));
-
+            ArrayList<TrafficSampleInfo> trafficSampleInfos = TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples();
+            System.out.println(TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples().size());
+            TrafficSampleInfo trafficSampleInfo = TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples().stream().max(Comparator.comparing(v -> v.getAverageThroughput(20))).get();
+            System.out.println(trafficSampleInfos.indexOf(trafficSampleInfo));
     }catch (Exception e){
             System.out.println("Error in Main class");
             System.out.println(Arrays.toString(e.getStackTrace()));

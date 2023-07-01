@@ -12,18 +12,22 @@ import java.util.stream.Collectors;
 
 
 public class BurstEventHandler {
-    long THRESHOLD = ConfigurationParameters.getBurstParameters().getTHRESHOLD();
-    int MINIMUM_NUMBER_OF_PACKETS_IN_BURST = ConfigurationParameters.getBurstParameters().getMINIMUM_NUMBER_OF_PACKETS_IN_BURST();
-    int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST = ConfigurationParameters.getBurstParameters().getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST();
+
     private final ArrayList<BurstEvent> burstEvents = new ArrayList<>();
+    //TODO: add variables related to new burst detection method
+    private final ArrayList<TrafficSampleInfo> capturedSamples = new ArrayList<>();
+    private long arrivalTimeOfFirstPacketInCurrentSample;
+    private int bytesInSample;
+    private int numPacketsInSample;
+    //
+    private long arrivalTimeOfPreviousPacket;
     // temp variables
     private int numberOfPacketsSinceLastBurst;
     private int traversedBytesInCurrentBurst;
-    private long arrivalTimeOfPreviousPacket;
+
     private long arrivalTimeOfFirstBurstyPacket;
     private long arrivalTimeOfLastBurstyPacket;
     private boolean firstPacketArrived=false;
-
     private ArrayList<Flow> flowsContributedToBurst = new ArrayList<>();
 
     public ArrayList<BurstEvent> getBurstEvents() {
@@ -35,46 +39,45 @@ public class BurstEventHandler {
     public boolean isBursty(){
         return !this.burstEvents.isEmpty();
     }
+
+    public ArrayList<TrafficSampleInfo> getCapturedSamples() {
+        return capturedSamples;
+    }
+
     public void newPacket(Packet packet){
-        if(!firstPacketArrived){
-            numberOfPacketsSinceLastBurst +=1;
-            traversedBytesInCurrentBurst = packet.getPayload().getArray().length;
-            arrivalTimeOfPreviousPacket = packet.getArrivalTime();
-            firstPacketArrived=true;
-        }else if(firstPacketArrived) {
+        if(firstPacketArrived){
             long arrivalTimeOfLastPacket = packet.getArrivalTime();
-            long elapsedTimeSinceLastPacket = arrivalTimeOfLastPacket - arrivalTimeOfPreviousPacket;
-            if(elapsedTimeSinceLastPacket <= THRESHOLD){
-                numberOfPacketsSinceLastBurst+=1;
-                if(numberOfPacketsSinceLastBurst == MINIMUM_NUMBER_OF_PACKETS_IN_BURST){
-                    arrivalTimeOfFirstBurstyPacket = arrivalTimeOfLastPacket;
-                }
-                if(numberOfPacketsSinceLastBurst > MINIMUM_NUMBER_OF_PACKETS_IN_BURST
-                        && numberOfPacketsSinceLastBurst <= MAXIMUM_NUMBER_OF_PACKETS_IN_BURST){
-                    traversedBytesInCurrentBurst += packet.getPayload().getArray().length;
-                    arrivalTimeOfLastBurstyPacket = arrivalTimeOfLastPacket;
-                    Flow flow = Flow.getFlowFromPacket(packet);
-                    if(!flowsContributedToBurst.contains(flow)){
-                        flowsContributedToBurst.add(flow);
+            long elapsedTimeInCurrentSample = arrivalTimeOfLastPacket - arrivalTimeOfFirstPacketInCurrentSample;
+            if(elapsedTimeInCurrentSample<ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()){
+                bytesInSample += packet.getParentPacket().getPayload().getArray().length;
+                numPacketsInSample +=1;
+            } else if (elapsedTimeInCurrentSample==ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()) {
+                bytesInSample += packet.getParentPacket().getPayload().getArray().length;
+                numPacketsInSample +=1;
+                TrafficSampleInfo trafficSampleInfo = new TrafficSampleInfo(numPacketsInSample,bytesInSample);
+                capturedSamples.add(trafficSampleInfo);
+                resetParameters();
+                arrivalTimeOfFirstPacketInCurrentSample = packet.getArrivalTime();
+
+            }else if(elapsedTimeInCurrentSample>ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()){
+                TrafficSampleInfo trafficSampleInfo = new TrafficSampleInfo(numPacketsInSample,bytesInSample);
+                capturedSamples.add(trafficSampleInfo);
+                resetParameters();
+                long time = elapsedTimeInCurrentSample-20;
+                int i = (int) time/20;
+                if(i>=1){
+                    for (int j = 0; j < i ; j++) {
+                        capturedSamples.add(capturedSamples.size(),new TrafficSampleInfo(0,0));
                     }
                 }
-                if(numberOfPacketsSinceLastBurst > MINIMUM_NUMBER_OF_PACKETS_IN_BURST
-                        && numberOfPacketsSinceLastBurst == MAXIMUM_NUMBER_OF_PACKETS_IN_BURST){
-                    BurstEvent burstEvent = new BurstEvent(numberOfPacketsSinceLastBurst, traversedBytesInCurrentBurst,
-                            arrivalTimeOfFirstBurstyPacket,arrivalTimeOfLastBurstyPacket,flowsContributedToBurst);
-//                    System.out.println(arrivalTimeOfLastBurstyPacket-arrivalTimeOfFirstBurstyPacket);
-                    burstEvents.add(burstEvent);
-                    resetBurstParameters(packet);
-                }
-            }else if(numberOfPacketsSinceLastBurst > MINIMUM_NUMBER_OF_PACKETS_IN_BURST){
-                BurstEvent burstEvent = new BurstEvent(numberOfPacketsSinceLastBurst, traversedBytesInCurrentBurst,
-                        arrivalTimeOfFirstBurstyPacket,arrivalTimeOfLastBurstyPacket,flowsContributedToBurst);
-//                System.out.println(arrivalTimeOfLastBurstyPacket-arrivalTimeOfFirstBurstyPacket);
-                burstEvents.add(burstEvent);
-                resetBurstParameters(packet);
-            }else {
-                resetBurstParameters(packet);
+                arrivalTimeOfFirstPacketInCurrentSample = packet.getArrivalTime()-time;
             }
+        }else if(!firstPacketArrived) {
+            numPacketsInSample +=1;
+            bytesInSample = packet.getParentPacket().getPayload().getArray().length;
+            arrivalTimeOfPreviousPacket = packet.getArrivalTime();
+            arrivalTimeOfFirstPacketInCurrentSample = packet.getArrivalTime();
+            firstPacketArrived=true;
         }
 
     }
@@ -151,5 +154,9 @@ public class BurstEventHandler {
             avgPktSize.add(Utilities.getRoundedValue((double)i2.next())/((double) i1.next()));
         }
         return avgPktSize;
+    }
+    private void resetParameters(){
+        numPacketsInSample=0;
+        bytesInSample=0;
     }
 }
