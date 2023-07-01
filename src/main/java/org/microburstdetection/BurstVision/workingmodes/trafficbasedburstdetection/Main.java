@@ -2,6 +2,7 @@ package org.microburstdetection.BurstVision.workingmodes.trafficbasedburstdetect
 
 import io.pkts.Pcap;
 import org.apache.commons.cli.*;
+import org.microburstdetection.BurstVision.cnfg.BurstParameters;
 import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
 import org.microburstdetection.BurstVision.cnfg.TrafficMonitoringParameters;
 import org.microburstdetection.BurstVision.utilities.Utilities;
@@ -45,7 +46,10 @@ public class Main {
 //        System.out.println(outputFilePath);
         String[] sourceFilePath = inputFilePath.split(",");
         String resultsPath = outputFilePath;
-        ConfigurationParameters.setConfigurationParameters(new TrafficMonitoringParameters(10_000,20),null);
+        int burstRatio= 10;
+        int samplingDuration=20;
+        int samplingWindow=10_000;
+        ConfigurationParameters.setConfigurationParameters(new TrafficMonitoringParameters(samplingWindow,samplingDuration), new BurstParameters(burstRatio));
         // read pcap file
         try {
             for (String filePath : sourceFilePath) {

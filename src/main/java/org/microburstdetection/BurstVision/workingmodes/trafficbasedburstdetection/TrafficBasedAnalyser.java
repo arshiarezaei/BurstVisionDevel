@@ -59,6 +59,4 @@ public class TrafficBasedAnalyser {
             increaseCapturedBytes(packet.getParentPacket().getPayload().getArray().length);
         }
     }
-
-
 }

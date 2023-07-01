@@ -1,34 +1,19 @@
 package org.microburstdetection.BurstVision.cnfg;
 
 public class BurstParameters {
-
-    private final long THRESHOLD; // maximum inter-arrival time between two consecutive packets
+    private  int burstRatio; // maximum inter-arrival time between two consecutive packets
     /* minimum number of packets with inter-arrival time less
         than threshold to construct a burst */
-    private final int MINIMUM_NUMBER_OF_PACKETS_IN_BURST;
-    private final int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST; // maximum number of packets in a burst event
+
+
+    public BurstParameters(int burstRatio) {
+        this.burstRatio = burstRatio;
+    }
 
     public BurstParameters() {
-        THRESHOLD = 24; // in micro-seconds
-        MINIMUM_NUMBER_OF_PACKETS_IN_BURST = 4;
-        MAXIMUM_NUMBER_OF_PACKETS_IN_BURST = 50;
     }
 
-    public BurstParameters(long THRESHOLD, int MINIMUM_NUMBER_OF_PACKETS_IN_BURST, int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST) {
-        this.THRESHOLD = THRESHOLD;
-        this.MINIMUM_NUMBER_OF_PACKETS_IN_BURST = MINIMUM_NUMBER_OF_PACKETS_IN_BURST;
-        this.MAXIMUM_NUMBER_OF_PACKETS_IN_BURST = MAXIMUM_NUMBER_OF_PACKETS_IN_BURST;
-    }
-
-    public long getTHRESHOLD() {
-        return THRESHOLD;
-    }
-
-    public int getMINIMUM_NUMBER_OF_PACKETS_IN_BURST() {
-        return MINIMUM_NUMBER_OF_PACKETS_IN_BURST;
-    }
-
-    public int getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST() {
-        return MAXIMUM_NUMBER_OF_PACKETS_IN_BURST;
+    public long getBurstRatio() {
+        return burstRatio;
     }
 }

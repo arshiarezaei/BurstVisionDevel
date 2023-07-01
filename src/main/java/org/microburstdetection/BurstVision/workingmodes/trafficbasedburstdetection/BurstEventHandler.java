@@ -82,78 +82,35 @@ public class BurstEventHandler {
 
     }
     public ArrayList<Long> getBurstInterBurstTime(){
-        ArrayList<Long> burstInterArrivalTime = new ArrayList<>();
-        if(burstEvents.size()>=2){
-            for (int i = 0; i < this.burstEvents.size()-1; i++) {
-                long endOfCurrentBurst = burstEvents.get(i).getArrivalTimeOfLastPacket();
-                long startOfNextBurst = this.burstEvents.get(i+1).arrivalTimeOfFirstPacket();
-                burstInterArrivalTime.add(startOfNextBurst-endOfCurrentBurst);
-            }
-        }else if(burstEvents.size()==1) {
-            long l = burstEvents.get(0).getArrivalTimeOfLastPacket()-burstEvents.get(0).getArrivalTimeOfFirstPacket();
-            burstInterArrivalTime.add(l);
-            return burstInterArrivalTime;
-        }
-        return burstInterArrivalTime;
+        return null;
     }
     public ArrayList<Long> getBurstsDuration(){
-        ArrayList<Long> burstDuration = new ArrayList<>();
-        return this.burstEvents.stream().map(BurstEvent::getBurstDuration).collect(Collectors.toCollection(ArrayList::new));
+        return null;
     }
 
     public ArrayList<Integer> getTraversedBytesInEachBurst(){
-        return burstEvents.stream().map(BurstEvent::getTraversedBytes).collect(Collectors.toCollection(ArrayList::new));
+        return null;
     }
     public double getAverageThroughputInBursts(){
-        Integer sumOfTraversedBytes = burstEvents.stream().map(BurstEvent::getTraversedBytes).mapToInt(value -> value).sum();
-        Long sumOfBurstsDuration = burstEvents.stream().map(BurstEvent::getBurstDuration).mapToLong(value -> value).sum();
-        return (sumOfTraversedBytes*1.0)/sumOfBurstsDuration;
+        return 0.0;
     }
 
     public int getTotalNumberOfPacketsInBursts(){
-        return burstEvents.stream().map(BurstEvent::getNumberOfPackets).mapToInt(a->a).sum();
+        return 0;
     }
     public ArrayList<Integer> getNumberOfPacketsInEachBurst(){
-        return burstEvents.stream().map(BurstEvent::getNumberOfPackets).collect(Collectors.toCollection(ArrayList::new));
+        return null;
     }
     public ArrayList<Double> getThroughputInEachBurst(){
-        ArrayList<Double> throughputInEachBurst = new ArrayList<>();
-        //FiXMe:
-        if(getBurstsDuration().size()!=getTraversedBytesInEachBurst().size()){
-            System.out.println("ERROR->getThroughputInEachBurst()");
-        }
-        Iterator<Long> i1 = getBurstsDuration().iterator();
-        Iterator<Integer> i2 = getTraversedBytesInEachBurst().iterator();
-        while(i1.hasNext() && i2.hasNext()) {
-            throughputInEachBurst.add((i2.next())*1.0/(i1.next()*1.0));
-        }
-        return throughputInEachBurst;
-    }
-    private void resetBurstParameters(Packet packet){
-        numberOfPacketsSinceLastBurst=0;
-        traversedBytesInCurrentBurst =0;
-        arrivalTimeOfPreviousPacket = packet.getArrivalTime();
-        flowsContributedToBurst = new ArrayList<>();
-//        arrivalTimeOfLastBurstyPacket= packet.getArrivalTime();
-//        arrivalTimeOfFirstBurstyPacket = packet.getArrivalTime();
+        return null;
     }
 
     public double getAverageBurstThroughput(){
-        long sumBurstsDuration = burstEvents.stream().mapToLong(BurstEvent::getBurstDuration).sum();
-        long sumTraversedBytes = burstEvents.stream().mapToInt(BurstEvent::getTraversedBytes).sum();
-        return (sumTraversedBytes*1.0)/(sumBurstsDuration*1.0);
+        return 0.0;
     }
 
     public ArrayList<Double> getAveragePacketSize(){
-        ArrayList<Double> avgPktSize = new ArrayList<>();
-        ArrayList<Integer> listNumPacketsEachBurst = TrafficBasedAnalyser.getBurstEventHandler().getNumberOfPacketsInEachBurst();
-        ArrayList<Integer> listTraversedByteEachBurst = TrafficBasedAnalyser.getBurstEventHandler().getTraversedBytesInEachBurst();
-        Iterator<Integer> i1 = listNumPacketsEachBurst.iterator();
-        Iterator<Integer> i2 = listTraversedByteEachBurst.iterator();
-        while (i1.hasNext() && i2.hasNext()){
-            avgPktSize.add(Utilities.getRoundedValue((double)i2.next())/((double) i1.next()));
-        }
-        return avgPktSize;
+        return null;
     }
     private void resetParameters(){
         numPacketsInSample=0;
