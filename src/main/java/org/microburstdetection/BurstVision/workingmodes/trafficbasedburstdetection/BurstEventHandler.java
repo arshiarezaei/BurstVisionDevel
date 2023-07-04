@@ -19,6 +19,7 @@ public class BurstEventHandler {
     private long arrivalTimeOfFirstPacketInCurrentSample;
     private int bytesInSample;
     private int numPacketsInSample;
+    private int arrivalTimeOfFirstPacketInCurrentSamplingWindow;
     //
     private long arrivalTimeOfPreviousPacket;
     // temp variables
@@ -45,6 +46,7 @@ public class BurstEventHandler {
     }
 
     public void newPacket(Packet packet){
+
         if(firstPacketArrived){
             long arrivalTimeOfLastPacket = packet.getArrivalTime();
             long elapsedTimeInCurrentSample = arrivalTimeOfLastPacket - arrivalTimeOfFirstPacketInCurrentSample;
@@ -58,7 +60,6 @@ public class BurstEventHandler {
                 capturedSamples.add(trafficSampleInfo);
                 resetParameters();
                 arrivalTimeOfFirstPacketInCurrentSample = packet.getArrivalTime();
-
             }else if(elapsedTimeInCurrentSample>ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()){
                 TrafficSampleInfo trafficSampleInfo = new TrafficSampleInfo(numPacketsInSample,bytesInSample);
                 capturedSamples.add(trafficSampleInfo);
