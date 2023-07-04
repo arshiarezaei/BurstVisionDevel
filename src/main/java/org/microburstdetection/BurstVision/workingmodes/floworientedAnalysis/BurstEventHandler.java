@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 
 
 public class BurstEventHandler {
-    long THRESHOLD = ConfigurationParameters.getBurstParameters().getTHRESHOLD();
-    int MINIMUM_NUMBER_OF_PACKETS_IN_BURST = ConfigurationParameters.getBurstParameters().getMINIMUM_NUMBER_OF_PACKETS_IN_BURST();
-    int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST = ConfigurationParameters.getBurstParameters().getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST();
+    long THRESHOLD = 24;
+    int MINIMUM_NUMBER_OF_PACKETS_IN_BURST =4;
+    int MAXIMUM_NUMBER_OF_PACKETS_IN_BURST = 100;
     private final ArrayList<BurstEvent> burstEvents = new ArrayList<>();
     // temp variables
     private int numberOfPacketsSinceLastBurst;
