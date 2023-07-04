@@ -3,12 +3,8 @@ package org.microburstdetection.BurstVision.workingmodes.trafficbasedburstdetect
 import io.pkts.packet.Packet;
 
 import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
-import org.microburstdetection.BurstVision.utilities.Utilities;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.stream.Collectors;
-
 
 
 public class BurstEventHandler {
@@ -19,7 +15,6 @@ public class BurstEventHandler {
     private long arrivalTimeOfFirstPacketInCurrentSample;
     private int bytesInSample;
     private int numPacketsInSample;
-    private int arrivalTimeOfFirstPacketInCurrentSamplingWindow;
     //
     private long arrivalTimeOfPreviousPacket;
     // temp variables
@@ -46,29 +41,26 @@ public class BurstEventHandler {
     }
 
     public void newPacket(Packet packet){
+        long arrivalTimeOfLastPacket = packet.getArrivalTime();
+
 
         if(firstPacketArrived){
-            long arrivalTimeOfLastPacket = packet.getArrivalTime();
             long elapsedTimeInCurrentSample = arrivalTimeOfLastPacket - arrivalTimeOfFirstPacketInCurrentSample;
             if(elapsedTimeInCurrentSample<ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()){
-                bytesInSample += packet.getParentPacket().getPayload().getArray().length;
-                numPacketsInSample +=1;
+                updateCapturedPacketsParameters(packet);
             } else if (elapsedTimeInCurrentSample==ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()) {
-                bytesInSample += packet.getParentPacket().getPayload().getArray().length;
-                numPacketsInSample +=1;
-                TrafficSampleInfo trafficSampleInfo = new TrafficSampleInfo(numPacketsInSample,bytesInSample);
-                capturedSamples.add(trafficSampleInfo);
+                updateCapturedPacketsParameters(packet);
+                updateSamplesList(numPacketsInSample,bytesInSample);
                 resetParameters();
                 arrivalTimeOfFirstPacketInCurrentSample = packet.getArrivalTime();
             }else if(elapsedTimeInCurrentSample>ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()){
-                TrafficSampleInfo trafficSampleInfo = new TrafficSampleInfo(numPacketsInSample,bytesInSample);
-                capturedSamples.add(trafficSampleInfo);
+                updateSamplesList(numPacketsInSample,bytesInSample);
                 resetParameters();
                 long time = elapsedTimeInCurrentSample-20;
                 int i = (int) time/20;
                 if(i>=1){
                     for (int j = 0; j < i ; j++) {
-                        capturedSamples.add(capturedSamples.size(),new TrafficSampleInfo(0,0));
+                        updateSamplesList(0,0);;
                     }
                 }
                 arrivalTimeOfFirstPacketInCurrentSample = packet.getArrivalTime()-time;
@@ -116,5 +108,13 @@ public class BurstEventHandler {
     private void resetParameters(){
         numPacketsInSample=0;
         bytesInSample=0;
+    }
+    private void updateCapturedPacketsParameters(Packet packet){
+        bytesInSample += packet.getParentPacket().getPayload().getArray().length;
+        numPacketsInSample +=1;
+    }
+    private void updateSamplesList(int numPacketsInSample, int bytesInSample){
+        TrafficSampleInfo trafficSampleInfo = new TrafficSampleInfo(numPacketsInSample,bytesInSample);
+        capturedSamples.add(trafficSampleInfo);
     }
 }
