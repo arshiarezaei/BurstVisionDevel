@@ -13,6 +13,7 @@ public class BurstEventHandler {
     //TODO: add variables related to new burst detection method
     private final ArrayList<TrafficSampleInfo> capturedSamples = new ArrayList<>();
     private long arrivalTimeOfFirstPacketInCurrentSample;
+    private int elapsedTimeInSamplingWindow;
     private int bytesInSample;
     private int numPacketsInSample;
     //
@@ -41,11 +42,11 @@ public class BurstEventHandler {
     }
 
     public void newPacket(Packet packet){
-        long arrivalTimeOfLastPacket = packet.getArrivalTime();
-
 
         if(firstPacketArrived){
+            long arrivalTimeOfLastPacket = packet.getArrivalTime();
             long elapsedTimeInCurrentSample = arrivalTimeOfLastPacket - arrivalTimeOfFirstPacketInCurrentSample;
+            elapsedTimeInSamplingWindow += elapsedTimeInCurrentSample;
             if(elapsedTimeInCurrentSample<ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()){
                 updateCapturedPacketsParameters(packet);
             } else if (elapsedTimeInCurrentSample==ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()) {
@@ -65,12 +66,23 @@ public class BurstEventHandler {
                 }
                 arrivalTimeOfFirstPacketInCurrentSample = packet.getArrivalTime()-time;
             }
+            if(elapsedTimeInSamplingWindow>=ConfigurationParameters.getTrafficMonitoringParameters().getSamplingWindowDuration()){
+                /* TODO:
+                    1. find average throughput in window
+                    2. find throughput in each sample
+                    3. for each sample find burst ratio = (sample_throughput/ avg_throughput)
+                    4. burstEventsInCurrentWindow = find samples burst ratio more than ConfigurationParameters.getBurstParameters().getMinBurstRatio()
+                    5. for each burstEventInCurrentWindow check neighbors to find start and finish time of bursts, traversed/bytes packets in burst,
+                    3. report burst events in burstEvents
+                    4. reset capturedSamples firstPacketArrived
+                    */
+            }
         }else if(!firstPacketArrived) {
+            firstPacketArrived=true;
             numPacketsInSample +=1;
             bytesInSample = packet.getParentPacket().getPayload().getArray().length;
             arrivalTimeOfPreviousPacket = packet.getArrivalTime();
             arrivalTimeOfFirstPacketInCurrentSample = packet.getArrivalTime();
-            firstPacketArrived=true;
         }
 
     }
