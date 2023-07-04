@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
 import org.microburstdetection.BurstVision.utilities.ResultsProvider;
 
 
@@ -70,11 +69,9 @@ class Results {
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(
                     "Dataset\t "+dataSetName+"\n"+
-                            "Threshold\t"+ ConfigurationParameters.getBurstParameters().getTHRESHOLD()+" micro-seconds\n"+
-                            "Minimum number of packets to detect a burst\t"+ConfigurationParameters.getBurstParameters().
-                            getMINIMUM_NUMBER_OF_PACKETS_IN_BURST()+"\n"+
-                            "Maximum number of packets in a burst event\t"+ ConfigurationParameters.getBurstParameters()
-                            .getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST()+"\n"+
+                            "Threshold\t"+" micro-seconds\n"+
+                            "Minimum number of packets to detect a burst\t"+"\n"+
+                            "Maximum number of packets in a burst event\t"+"\n"+
                             "Traffic Capturing Time\t"+ TrafficBasedAnalyser.getCapturingTime()*Math.pow(10,-6)+" (seconds) \n"+
                             "Number of Captured Packets\t"+ TrafficBasedAnalyser.getNumberOfCapturedPackets()+"\n"+
                             "Number of bursts\t"+TrafficBasedAnalyser.getBurstEventHandler().getNumberOfBursts()+"\n"+

@@ -119,9 +119,9 @@ public class Results {
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(
                     "Dataset\t "+dataSetName+"\n"+
-                            "Threshold\t"+ ConfigurationParameters.getBurstParameters().getTHRESHOLD()+" micro-seconds\n"+
-                            "Minimum number of packets to detect a burst\t"+ConfigurationParameters.getBurstParameters().getMINIMUM_NUMBER_OF_PACKETS_IN_BURST()+"\n"+
-                            "Maximum number of packets in a burst event\t"+ ConfigurationParameters.getBurstParameters().getMAXIMUM_NUMBER_OF_PACKETS_IN_BURST()+"\n"+
+                            "Threshold\t"+
+                            "Minimum number of packets to detect a burst\t"+"\n"+
+                            "Maximum number of packets in a burst event\t"+"\n"+
                             "Number of flows\t" + numFlows + "\n"+
                             "Number of TCP flows\t" + numTCPFlows + "\n"+
                             "Number of UDP flows\t" + numUDPFlows + "\n"+
