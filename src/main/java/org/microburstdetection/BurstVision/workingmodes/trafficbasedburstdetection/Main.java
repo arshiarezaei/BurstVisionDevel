@@ -7,6 +7,7 @@ import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
 import org.microburstdetection.BurstVision.cnfg.TrafficMonitoringParameters;
 import org.microburstdetection.BurstVision.utilities.Utilities;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,9 +47,9 @@ public class Main {
 //        System.out.println(outputFilePath);
         String[] sourceFilePath = inputFilePath.split(",");
         String resultsPath = outputFilePath;
-        int burstRatio= 10;
-        int samplingDuration=20;
-        int samplingWindow=10_000;
+        int burstRatio= 20;
+        int samplingDuration=20;// in microseconds
+        int samplingWindow=1200;// in microseconds
         ConfigurationParameters.setConfigurationParameters(new TrafficMonitoringParameters(samplingWindow,samplingDuration), new BurstParameters(burstRatio));
         // read pcap file
         try {
@@ -58,9 +59,34 @@ public class Main {
                 pcap.close();
             }
             ArrayList<TrafficSampleInfo> trafficSampleInfos = TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples();
-            System.out.println(TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples().size());
-            TrafficSampleInfo trafficSampleInfo = TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples().stream().max(Comparator.comparing(v -> v.getAverageThroughput(20))).get();
-            System.out.println(trafficSampleInfos.indexOf(trafficSampleInfo));
+            int sd = ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration();
+            int aw = ConfigurationParameters.getTrafficMonitoringParameters().getSamplingWindowDuration();
+            BurstDetector.getBursts(trafficSampleInfos,(double) TrafficHandler.bytes/TrafficBasedAnalyser.getCapturingTime(),sd,aw,burstRatio);
+            ArrayList<Integer> bd = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getBurstDuration).collect(Collectors.toCollection(ArrayList::new));
+//            FileWriter fileWriter = new FileWriter("/Users/arshiya/Documents/ComputerEngineering/Research/ipm/framework/results/flow-oriented_analysis/part(1)/bd.txt");
+//            try{
+//                fileWriter.write(bd.toString());
+//            }catch (Exception e){
+//                System.out.println(e);
+//            }
+            Results.generateCDFOfBurstDuration(bd);
+//            System.out.println(TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples().size());
+//            TrafficSampleInfo trafficSampleInfo = TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples().stream().max(Comparator.comparing(v -> v.getAverageThroughput(20))).get();
+//            System.out.println(trafficSampleInfos.indexOf(trafficSampleInfo));
+//            int sd = ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration();
+//            int sw = ConfigurationParameters.getTrafficMonitoringParameters().getSamplingWindowDuration();
+//            System.out.println(TrafficBasedAnalyser.getArrivalTimeOfLastPacket()-TrafficBasedAnalyser.getArrivalTimeOfFirstPacket());
+//            long capturingTime= TrafficBasedAnalyser.getCapturingTime();
+//            System.out.println("capturing time "+capturingTime);
+//            System.out.println("bytes"+ TrafficBasedAnalyser.getCapturedBytes());
+//            System.out.println(TrafficBasedAnalyser.getAvgThroughput());
+//            System.out.println(TrafficBasedAnalyser.getBurstEventHandler().getCapturedSamples().size()+"\t"+sw/sd);
+//            BurstDetector.getBursts(trafficSampleInfos);
+//            System.out.println(TrafficBasedAnalyser.getCapturedBytes());// 475013266 475_013_266
+//            System.out.println(TrafficBasedAnalyser.getCapturingTime());
+//            System.out.println(TrafficHandler.counter);
+//            System.out.println("th = \t"+((double) TrafficHandler.bytes/TrafficBasedAnalyser.getCapturingTime()));
+//            System.out.println(TrafficHandler.bytes);
     }catch (Exception e){
             System.out.println("Error in Main class");
             System.out.println(Arrays.toString(e.getStackTrace()));

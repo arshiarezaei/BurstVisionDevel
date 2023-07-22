@@ -95,10 +95,11 @@ class Results {
         }
     }
 
-    public static void generateCDFOfBurstDuration(ArrayList<Long> listOfBurstDuration){
-        Map<Long,Double> cdf = ResultsProvider.calculateCDFLong(listOfBurstDuration);
-        String path = resultsDir+"/"+"cdf_bursts_duration.txt";
-        ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"burst duration(microseconds)"+"\t\t\t"+"X%",cdf,dataSetName);
+    public static void generateCDFOfBurstDuration(ArrayList<Integer> listOfBurstDuration){
+        Map<Integer,Double> cdf = ResultsProvider.calculateCDFInteger(listOfBurstDuration);
+//        String path = resultsDir+"/"+"cdf_bursts_duration.txt";
+        String path = "/Users/arshiya/Documents/ComputerEngineering/Research/ipm/framework/results/test"+"/"+"cdf_bursts_duration.txt";
+        ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"burst duration(microseconds)"+"\t\t\t"+"X%",cdf,"test");
     }
     public static void generateCDFOfNumberOfPacketsInEachBurst(ArrayList<BurstEvent> burstEvents){
         ArrayList<Integer> bs= burstEvents.stream().map(BurstEvent::getNumberOfPackets).collect(Collectors.toCollection(ArrayList::new));

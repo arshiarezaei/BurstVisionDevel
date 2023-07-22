@@ -1,6 +1,8 @@
 package org.microburstdetection.BurstVision.workingmodes.trafficbasedburstdetection;
 
-public record TrafficSampleInfo(int traversedPackets,int traversedBytes) implements sample{
+import java.util.Set;
+
+public record TrafficSampleInfo(int traversedPackets, int traversedBytes, int numFlowsInSample) implements sample{
 
     @Override
     public int traversedPackets() {
@@ -16,4 +18,14 @@ public record TrafficSampleInfo(int traversedPackets,int traversedBytes) impleme
         return (traversedBytes*1.0)/(sampleDuration*1.0);
     }
 
+    @Override
+    public double getBurstRatio(double avgThroughput,int sampleDuration) {
+//        System.out.println(traversedBytes+"\t"+getAverageThroughput(sampleDuration)+"\t"+getAverageThroughput(sampleDuration)/avgThroughput);
+        return getAverageThroughput(sampleDuration)/avgThroughput;
+    }
+
+    @Override
+    public int getNumFlows() {
+        return numFlowsInSample;
+    }
 }
