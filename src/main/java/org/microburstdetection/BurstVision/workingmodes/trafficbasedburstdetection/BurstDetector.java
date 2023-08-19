@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class BurstDetector {
     public static void getBursts(ArrayList<TrafficSampleInfo> capturedSamples, double threshold, int samplingDuration, int avgWindow,int burstRatio){
-        System.out.println("here");
+//        System.out.println("here");
         double[] bitrate = capturedSamples.stream().mapToDouble(c -> c.getAverageThroughput(samplingDuration)).toArray();
         double[] data = UtilMethods.splitByIndex(bitrate, 0, bitrate.length);
         FindPeak fp = new FindPeak(data);
@@ -67,7 +67,6 @@ public class BurstDetector {
                 DetectedBurst detectedBurst = new DetectedBurst(indexOfBurst,burstyPackets,sumBytes,bd,br,flowsContributedToBurst);
 //                    detectedBursts.add(detectedBurst);
                 BurstEventHandler.addNewBurst(detectedBurst);
-
             }
         }
 //        System.out.println("burst size"+detectedBursts.size());

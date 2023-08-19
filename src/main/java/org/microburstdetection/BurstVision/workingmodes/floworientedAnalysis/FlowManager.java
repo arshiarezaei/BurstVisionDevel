@@ -100,22 +100,22 @@ public class FlowManager {
     public static <Flow> int getNumberOfFlowsByType(Class<Flow> flowType, TrafficType flowTrafficClass,Class... protocols) throws IllegalStateException{
         int counter = 0;
 //        System.out.println(protocols[0].getSimpleName()+"\t"+protocols[1].getSimpleName());
-        for (Flow flow: getFlowsByClassName(getFlowsByTrafficType(flowTrafficClass),flowType)) {
-            String s = flow.getClass().getSimpleName();
-            switch (flow){
-                case FiveTupleFlow f: {
-                    f = (FiveTupleFlow) flow;
-                    if(f.getLayer3().getClass().getSimpleName().equals(protocols[0].getSimpleName())&&
-                        f.getLayer4().getClass().getSimpleName().equals(protocols[1].getSimpleName())) {
-                        counter++;
-                        break;
-                    }
-                }
-                default:
-//                    throw new IllegalStateException("Unexpected value: " + flow);
-            }
-        }
-//        System.out.println(counter);
+//        for (Flow flow: getFlowsByClassName(getFlowsByTrafficType(flowTrafficClass),flowType)) {
+//            String s = flow.getClass().getSimpleName();
+//            switch (flow){
+//                case (FiveTupleFlow) flow: {
+//                    f = (FiveTupleFlow) flow;
+//                    if(f.getLayer3().getClass().getSimpleName().equals(protocols[0].getSimpleName())&&
+//                        f.getLayer4().getClass().getSimpleName().equals(protocols[1].getSimpleName())) {
+//                        counter++;
+//                        break;
+//                    }
+//                }
+//                default:
+////                    throw new IllegalStateException("Unexpected value: " + flow);
+//            }
+//        }
+////        System.out.println(counter);
         return counter;
     }
 

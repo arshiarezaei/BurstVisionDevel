@@ -98,12 +98,12 @@ class Results {
     public static void generateCDFOfBurstDuration(ArrayList<Integer> listOfBurstDuration){
         Map<Integer,Double> cdf = ResultsProvider.calculateCDFInteger(listOfBurstDuration);
 //        String path = resultsDir+"/"+"cdf_bursts_duration.txt";
-        String path = "/Users/arshiya/Documents/ComputerEngineering/Research/ipm/framework/results/test"+"/"+"cdf_bursts_duration.txt";
+        String path = resultsDir+"/"+"cdf_bursts_duration.txt";
         ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"burst duration(microseconds)"+"\t\t\t"+"X%",cdf,"test");
     }
-    public static void generateCDFOfNumberOfPacketsInEachBurst(ArrayList<BurstEvent> burstEvents){
-        ArrayList<Integer> bs= burstEvents.stream().map(BurstEvent::getNumberOfPackets).collect(Collectors.toCollection(ArrayList::new));
-        Map<Integer,Double> r= ResultsProvider.calculateCDFInteger(bs);
+    public static void generateCDFOfNumberOfPacketsInEachBurst(ArrayList<Integer> numberOfBurstyPackets){
+//        ArrayList<Integer> bs= burstEvents.stream().map(BurstEvent::getNumberOfPackets).collect(Collectors.toCollection(ArrayList::new));
+        Map<Integer,Double> r= ResultsProvider.calculateCDFInteger(numberOfBurstyPackets);
         String path = resultsDir+"/"+"cdf_num_packets.txt";
         ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"#Packets"+"\t\t\t"+"X%",r,dataSetName);
     }
@@ -112,11 +112,11 @@ class Results {
         String path = resultsDir+"/"+"cdf_traversed_bytes.txt";
         ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"bytes"+"\t\t\t"+"X%",r,dataSetName);
     }
-    public static void generateCDFOfInterBurstTime(ArrayList<Long> interBurstTimes){
-        Map<Long,Double> cdf = ResultsProvider.calculateCDFLong(interBurstTimes);
-        String path = resultsDir+"/"+"cdf_inter_burst_time.txt";
-        ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"inter_burst Time (microseconds)"+"\t\t\t"+"X%",cdf,dataSetName);
-    }
+//    public static void generateCDFOfInterBurstTime(ArrayList<Long> interBurstTimes){
+//        Map<Long,Double> cdf = ResultsProvider.calculateCDFLong(interBurstTimes);
+//        String path = resultsDir+"/"+"cdf_inter_burst_time.txt";
+//        ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"inter_burst Time (microseconds)"+"\t\t\t"+"X%",cdf,dataSetName);
+//    }
 
     public static void generateCDFOfNumberOfFlowsContributingToBursts(ArrayList<Integer> listOfNumberOfFlowsContributingToBursts){
         Map<Integer,Double> cdf = ResultsProvider.calculateCDFInteger(listOfNumberOfFlowsContributingToBursts);
@@ -133,6 +133,15 @@ class Results {
         String path = resultsDir+"/"+"cdf_packet_size.txt";
         ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"packetSize (bytes)"+"\t\t\t"+"X%",cdf,dataSetName);
     }
-
+    public static void generateCDFOfBurstRatio(ArrayList<Double> burstRatioList){
+        Map<Double,Double> cdf = ResultsProvider.calculateCDFDouble(burstRatioList);
+        String path = resultsDir+"/"+"cdf_burstRatio.txt";
+        ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"Burst Ratio"+"\t\t\t"+"X%",cdf,dataSetName);
+    }
+    public static void generateCDFOfInterBurstTime(ArrayList<Integer> interBurstTimeList){
+        Map<Integer,Double> cdf = ResultsProvider.calculateCDFInteger(interBurstTimeList);
+        String path = resultsDir+"/"+"cdf_interBurstTime.txt";
+        ResultsProvider.writeCDFDataToFile(path,"dataset"+"\t\t"+"interBurstTime"+"\t\t\t"+"X%",cdf,dataSetName);
+    }
 }
 

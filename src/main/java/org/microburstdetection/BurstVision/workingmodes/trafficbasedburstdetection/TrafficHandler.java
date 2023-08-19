@@ -5,11 +5,13 @@ import io.pkts.packet.*;
 import io.pkts.protocol.Protocol;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 class TrafficHandler implements PacketHandler {
     public static long bytes;
     public static long counter;
+    public static ArrayList<Long> packetsSize = new ArrayList<>();
     @Override
     public boolean nextPacket(Packet packet) throws IOException {
 //         Check the packet protocol
@@ -18,6 +20,7 @@ class TrafficHandler implements PacketHandler {
         PCapPacket pCapPacket = (PCapPacket) packet.getPacket(Protocol.PCAP);
 //        pCapPacket.getProtocol()
         long a = pCapPacket.getTotalLength();
+        packetsSize.add(a);
         bytes+=a;
         counter++;
         try {
@@ -25,6 +28,7 @@ class TrafficHandler implements PacketHandler {
                 IPv4Packet iPv4Packet = (IPv4Packet) packet.getPacket(Protocol.IPv4);
                 if(iPv4Packet.hasProtocol(Protocol.TCP)|| iPv4Packet.hasProtocol(Protocol.UDP)){
                     TrafficBasedAnalyser.newPacketArrived(iPv4Packet);
+                    FlowManager.addFlowToFlowsHashset(packet);
                 }
             }else if(packet.hasProtocol(Protocol.IPv6)) {
 //                System.out.println("Add implementation of IPV6");

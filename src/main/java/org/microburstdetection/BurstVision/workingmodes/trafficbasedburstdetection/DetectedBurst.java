@@ -25,7 +25,28 @@ public class DetectedBurst {
     public int getBurstDuration() {
         return burstDuration;
     }
+    public int getIndexInCapturedTraffic() {
+        return indexInCapturedTraffic;
+    }
 
+    public int getNumberOfBurstyPackets() {
+        return numberOfBurstyPackets;
+    }
+
+    public int getTraversedBytes() {
+        return traversedBytes;
+    }
+
+    public double getBurstRatio() {
+        return burstRatio;
+    }
+
+    public int getFlowsContributedToBurst() {
+        return flowsContributedToBurst;
+    }
+    public double getAveragePacketSize(){
+        return (double) traversedBytes/(numberOfBurstyPackets+1);
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -49,4 +70,5 @@ public class DetectedBurst {
                 ", burstRatio=" + burstRatio +
                 '}';
     }
+
 }

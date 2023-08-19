@@ -27,7 +27,7 @@ public class BurstEventHandler {
     private long arrivalTimeOfFirstBurstyPacket;
     private long arrivalTimeOfLastBurstyPacket;
     private boolean firstPacketArrived=false;
-    private Set<Flow> flowsInSample = new HashSet<>();
+    private Set<FlowRecord> flowsInSample = new HashSet<>();
     private int numFlowsInSample;
 
     public ArrayList<BurstEvent> getBurstEvents() {
@@ -171,7 +171,7 @@ public class BurstEventHandler {
         try{
             bytesInSample +=  ((PCapPacket) packet.getPacket(Protocol.PCAP)).getTotalLength();
             numPacketsInSample +=1;
-            flowsInSample.add(Flow.getFlowFromPacket(packet));
+            flowsInSample.add(FlowRecord.getFlowFromPacket(packet));
         }catch (Exception e){
             System.out.println(e);
         }
@@ -190,5 +190,14 @@ public class BurstEventHandler {
     }
     public static void addNewBurst(DetectedBurst detectedBurst){
         detectedBursts.add(detectedBurst);
+    }
+    public static ArrayList<Integer> getInterBurstTime(ArrayList<DetectedBurst> detectedBursts,int samplingDuration){
+        ArrayList<Integer> interBurstTime = new ArrayList<>();
+        for (int i = 0; i < detectedBursts.size()-1; i++) {
+            int interBurst = (detectedBursts.get(i+1).getIndexInCapturedTraffic()-
+                    detectedBursts.get(i).getIndexInCapturedTraffic())*samplingDuration;
+            interBurstTime.add(interBurst);
+        }
+        return interBurstTime;
     }
 }
