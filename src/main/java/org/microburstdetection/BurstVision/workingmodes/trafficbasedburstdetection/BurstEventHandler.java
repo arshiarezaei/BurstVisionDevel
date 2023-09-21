@@ -198,6 +198,7 @@ public class BurstEventHandler {
                     detectedBursts.get(i).getIndexInCapturedTraffic())*samplingDuration;
             interBurstTime.add(interBurst);
         }
-        return interBurstTime;
+        return
+                interBurstTime;
     }
 }
