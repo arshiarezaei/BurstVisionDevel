@@ -63,17 +63,17 @@ public class Main {
             BurstDetector.getBursts(trafficSampleInfos,(double) TrafficHandler.bytes/TrafficBasedAnalyser.getCapturingTime(),sd,aw,burstRatio);
             ArrayList<Integer> bd = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getBurstDuration).collect(Collectors.toCollection(ArrayList::new));
 
-//            Results.createDirsToStoreResults(resultsPath, Utilities.getDatasetFileName(sourceFilePath[0]));
-//            Results.generateCDFOfBurstDuration(bd);
-//            ArrayList<Integer> numBurstyPkts = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getNumberOfBurstyPackets).collect(Collectors.toCollection(ArrayList::new));
-//            Results.generateCDFOfNumberOfPacketsInEachBurst(numBurstyPkts);
-//            ArrayList<Integer> traversedBytes = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getTraversedBytes).collect(Collectors.toCollection(ArrayList::new));
-//            Results.generateCDFOfTraversedBytesInEachBurst(traversedBytes);
-//            ArrayList<Double> avgPktSize = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getAveragePacketSize).collect(Collectors.toCollection(ArrayList::new));
-//            Results.generateCDFAveragePacketSize(avgPktSize);
-//            ArrayList<Double> br = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getBurstRatio).collect(Collectors.toCollection(ArrayList::new));
-//            Results.generateCDFOfBurstRatio(br);
-//            Results.generateCDFOfInterBurstTime(BurstEventHandler.getInterBurstTime(BurstEventHandler.getDetectedBursts(),samplingDuration));
+            Results.createDirsToStoreResults(resultsPath, Utilities.getDatasetFileName(sourceFilePath[0]));
+            Results.generateCDFOfBurstDuration(bd);
+            ArrayList<Integer> numBurstyPkts = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getNumberOfBurstyPackets).collect(Collectors.toCollection(ArrayList::new));
+            Results.generateCDFOfNumberOfPacketsInEachBurst(numBurstyPkts);
+            ArrayList<Integer> traversedBytes = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getTraversedBytes).collect(Collectors.toCollection(ArrayList::new));
+            Results.generateCDFOfTraversedBytesInEachBurst(traversedBytes);
+            ArrayList<Double> avgPktSize = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getAveragePacketSize).collect(Collectors.toCollection(ArrayList::new));
+            Results.generateCDFAveragePacketSize(avgPktSize);
+            ArrayList<Double> br = BurstEventHandler.getDetectedBursts().stream().map(DetectedBurst::getBurstRatio).collect(Collectors.toCollection(ArrayList::new));
+            Results.generateCDFOfBurstRatio(br);
+            Results.generateCDFOfInterBurstTime(BurstEventHandler.getInterBurstTime(BurstEventHandler.getDetectedBursts(),samplingDuration));
             System.out.println("Num flows "+ FlowManager.getNumberOfFlows());
 //
 //            TrafficHandler.packetsSize.sort(Collections.reverseOrder());

@@ -3,8 +3,10 @@ package org.microburstdetection.BurstVision.workingmodes.floworientedAnalysis;
 import io.pkts.packet.IPv4Packet;
 import io.pkts.packet.Packet;
 import io.pkts.protocol.Protocol;
+import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
 import org.microburstdetection.BurstVision.cnfg.TrafficType;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -119,4 +121,63 @@ public class FlowManager {
         return counter;
     }
 
+    public static void findBurstsInAllFlows(){
+        flows.parallelStream().forEach(RawFlow::getBurstEvents);
+    }
+    public static ArrayList<Integer> getBurstDurationOfAllFlows(){
+        ArrayList<Integer> bd = new ArrayList<>();
+        for (RawFlow flow:getFlows()) {
+            FiveTupleFlow f = (FiveTupleFlow) flow;
+            bd.addAll(f.getBurstEvents().getBurstsDuration());
+        }
+        return bd;
+    }
+    public static ArrayList<Integer> getNumberOfPacketsInBursts(){
+        ArrayList<Integer> numberOfPacketsInBursts = new ArrayList<>();
+        for (RawFlow flow:getFlows()) {
+            FiveTupleFlow f = (FiveTupleFlow) flow;
+            numberOfPacketsInBursts.addAll(f.getBurstEvents().getNumberOfPacketsInEachBurst());
+        }
+        return numberOfPacketsInBursts;
+    }
+    public static ArrayList<Integer> getTraversedBytesInBursts(){
+        ArrayList<Integer> traversedBytesInEachBurst = new ArrayList<>();
+        for (RawFlow flow:getFlows()) {
+            FiveTupleFlow f = (FiveTupleFlow) flow;
+            traversedBytesInEachBurst.addAll(f.getBurstEvents().getTraversedBytesInEachBurst());
+        }
+        return traversedBytesInEachBurst;
+    }
+    public static ArrayList<Integer> getAveragePacketSize(){
+        ArrayList<Integer> averagePacketSize = new ArrayList<>();
+        for (RawFlow flow:getFlows()) {
+            FiveTupleFlow f = (FiveTupleFlow) flow;
+            averagePacketSize.addAll(f.getBurstEvents().getTraversedBytesInEachBurst());
+        }
+        return averagePacketSize;
+    }
+    public static ArrayList<Double> getBurstRatioOfAllFlows(){
+        ArrayList<Double> br = new ArrayList<>();
+        for (RawFlow flow:getFlows()) {
+            FiveTupleFlow f = (FiveTupleFlow) flow;
+            br.addAll(f.getBurstEvents().getBurstRatio());
+        }
+        return br;
+    }
+    public static ArrayList<Integer> getInterBurstTimeOfAllFlows(){
+        ArrayList<Integer> ibt = new ArrayList<>();
+        for (RawFlow rawFlow: getFlows()) {
+            FiveTupleFlow f = (FiveTupleFlow) rawFlow;
+            ibt.addAll(f.getBurstEvents().getInterBurstTime(ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration()));
+        }
+        return ibt;
+    }
+    public static ArrayList<Integer> getNumberOfBurstInAllFlows(){
+        ArrayList<Integer> numBursts = new ArrayList<>();
+        for (RawFlow rawFlow: getFlows()) {
+            FiveTupleFlow f = (FiveTupleFlow) rawFlow;
+            numBursts.add(f.getBurstEvents().getNumberOfBurst());
+        }
+        return numBursts;
+    }
 }

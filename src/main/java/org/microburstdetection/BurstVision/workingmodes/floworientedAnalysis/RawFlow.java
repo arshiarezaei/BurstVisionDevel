@@ -24,4 +24,5 @@ public interface RawFlow {
     ArrayList<Integer> getBitRate();
     boolean equals(Object o);
     int hashCode();
+
 }

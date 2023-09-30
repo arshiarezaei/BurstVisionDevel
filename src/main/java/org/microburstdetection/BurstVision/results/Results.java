@@ -347,112 +347,119 @@ public class Results {
             System.out.println(e);
         }
     }
-    public static void calculateCDFOfBurstsDurationOfFlows(ArrayList<RawFlow> flows){
-        // TODO: implement body of function, print results in results folder
+    public static void calculateCDFOfBurstsDurationOfFlows(){
+//         TODO: implement body of function, print results in results folder
 
-        ArrayList<Long> burstDurationOfallFlows = new ArrayList<>();
-        for (RawFlow flow:flows) {
-            if(flow.isBursty()){
-                burstDurationOfallFlows.addAll(flow.getBurstEvents().getBurstsDuration());
-            }
-        }
-        Map<Long, Long> sortedFrequencyOfBursts = (burstDurationOfallFlows.stream()
-                .collect(Collectors.groupingBy(Function.identity(),
-                        (Collectors.counting())))).entrySet().stream().
-                sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        Double totalNumberOfBursts = burstDurationOfallFlows.size()*1.0;
-//        System.out.println(sortedFrequencyOfBursts);
-        Map<Long,Double> pdf = new HashMap<>();
-        sortedFrequencyOfBursts.forEach((key, value) -> {
-            double probability = Utilities.getRoundedValue(( value/totalNumberOfBursts)*100.0);
-            pdf.put(key,probability);
-        });
-//        System.out.println(pdf);
-        Map<Long,Double> cdf = new HashMap<>();
-        for (Long key: pdf.keySet()) {
-            Double sum = 0.0;
-            for (Long key2: sortedFrequencyOfBursts.keySet()) {
-                if(key2<=key){
-                    sum+=pdf.get(key2);
-                }
-            }
-            sum = Utilities.getRoundedValue(sum);
-            cdf.put(key,sum);
-        }
+        ArrayList<Integer> burstDurationOfallFlows = FlowManager.getBurstDurationOfAllFlows();
+//        Map<Long, Long> sortedFrequencyOfBursts = (burstDurationOfallFlows.stream()
+//                .collect(Collectors.groupingBy(Function.identity(),
+//                        (Collectors.counting())))).entrySet().stream().
+//                sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+//                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+//        Double totalNumberOfBursts = burstDurationOfallFlows.size()*1.0;
+////        System.out.println(sortedFrequencyOfBursts);
+//        Map<Long,Double> pdf = new HashMap<>();
+//        sortedFrequencyOfBursts.forEach((key, value) -> {
+//            double probability = Utilities.getRoundedValue(( value/totalNumberOfBursts)*100.0);
+//            pdf.put(key,probability);
+//        });
+////        System.out.println(pdf);
+//        Map<Long,Double> cdf = new HashMap<>();
+//        for (Long key: pdf.keySet()) {
+//            Double sum = 0.0;
+//            for (Long key2: sortedFrequencyOfBursts.keySet()) {
+//                if(key2<=key){
+//                    sum+=pdf.get(key2);
+//                }
+//            }
+//            sum = Utilities.getRoundedValue(sum);
+//            cdf.put(key,sum);
+//        }
 //        System.out.println(cdf);
-        cdf = cdf.entrySet().stream().
-                sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+//        cdf = cdf.entrySet().stream().
+//                sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+//                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        Map<Integer,Double> sortedCDF = calculateCDF(burstDurationOfallFlows);
         try{
             File file = new File(Results.resultsDir+"/cdf_burst_duration.txt");
             file.createNewFile();
             FileWriter fileWriter = new FileWriter(file,false);
             fileWriter.write("dataset"+"\t\t"+"Duration(us)"+"\t\t\t"+"X%"+"\n");
-            for (Long key:cdf.keySet()) {
-                fileWriter.write(Results.dataSetName.replace(".pcap","")+"\t\t"+key+"\t\t"+cdf.get(key)+"\n");
+            for (Integer key:sortedCDF.keySet()) {
+                fileWriter.write(Results.dataSetName.replace(".pcap","")+"\t\t"+key+"\t\t"+sortedCDF.get(key)+"\n");
                 fileWriter.flush();
             }
             fileWriter.flush();
             fileWriter.close();
         }catch (Exception e){
+            System.out.println("Error in FlowBased->Results->calculateCDFOfBurstsDurationOfFlows");
             System.out.println(e);
         }
     }
     public static void CDFOfNumberOfPacketsInBursts(){
         // TODO: implement body of function, print results in results folder
+        Map<Integer,Double> sortedCDF = calculateCDF(FlowManager.getNumberOfPacketsInBursts());
+        String path = Results.resultsDir+"/"+"cdf_num_packets_in_bursts.txt";
+        String header = "dataset"+"\t\t"+"num packets"+"\t\t\t"+"X%";
+        Results.writeCDFDataToFile(path,header,sortedCDF);
+        writeCDFDataToFile(path,resultsDir,sortedCDF);
     }
-    public static void saveCDFBytesTraversedBursts(ArrayList<RawFlow> flows){
-        ArrayList<Integer> traversedBytesOfAllFlows = new ArrayList<>();
-        for (RawFlow flow:flows) {
-            if(flow.isBursty()){
-                traversedBytesOfAllFlows.addAll(flow.getBurstEvents().getTraversedBytesInEachBurst());
-            }
-        }
-        Map<Integer,Long> sortedFrequencyOfBursts = (traversedBytesOfAllFlows.stream()
-                .collect(Collectors.groupingBy(Function.identity(),
-                        (Collectors.counting())))).entrySet().stream().
-                sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        Double  traversedBytesOfAllFlowsSize = traversedBytesOfAllFlows.size()*1.0;
-        Map<Integer,Double> pdf = new HashMap<>();
-        sortedFrequencyOfBursts.forEach((key, value) -> {
-            double probability = Utilities.getRoundedValue(( value/traversedBytesOfAllFlowsSize)*100.0);
-            pdf.put(key,probability);
-        });
-//        System.out.println(pdf);
-        Map<Integer,Double> cdf = new HashMap<>();
-        for (Integer key: pdf.keySet()) {
-            Double sum = 0.0;
-            for (Integer key2: sortedFrequencyOfBursts.keySet()) {
-                if(key2<=key){
-                    sum+=pdf.get(key2);
-                }
-            }
-            sum = Utilities.getRoundedValue(sum);
-            cdf.put(key,sum);
-        }
-//        System.out.println(cdf);
-        cdf = cdf.entrySet().stream().
-                sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-//        for (Integer key: cdf.keySet()) {
-//            System.out.println(key+"\t"+ cdf.get(key));
+    public static void saveCDFBytesTraversedBursts(){
+        Map<Integer,Double> sortedCDF = calculateCDF(FlowManager.getTraversedBytesInBursts());
+        String path = Results.resultsDir+"/"+"cdf_traversed_Bytes.txt";
+        String header = "dataset"+"\t\t"+"bytes"+"\t\t\t"+"X%";
+        Results.writeCDFDataToFile(path,header,sortedCDF);
+        writeCDFDataToFile(path,resultsDir,sortedCDF);
+//        ArrayList<Integer> traversedBytesOfAllFlows = new ArrayList<>();
+//        for (RawFlow flow:flows) {
+//            if(flow.isBursty()){
+//                traversedBytesOfAllFlows.addAll(flow.getBurstEvents().getTraversedBytesInEachBurst());
+//            }
 //        }
-        try{
-            File file = new File(Results.resultsDir+"/cdf_bytes_traversed_bursts.txt");
-            file.createNewFile();
-            FileWriter fileWriter = new FileWriter(file,false);
-            fileWriter.write("dataset"+"\t\t"+"Bytes"+"\t\t\t"+"X%"+"\n");
-            for (Integer key:cdf.keySet()) {
-                fileWriter.write(Results.dataSetName.replace(".pcap","")+"\t\t"+key+"\t\t"+cdf.get(key)+"\n");
-                fileWriter.flush();
-            }
-            fileWriter.flush();
-            fileWriter.close();
-        }catch (Exception e){
-            System.out.println(e);
-        }
+//        Map<Integer,Long> sortedFrequencyOfBursts = (traversedBytesOfAllFlows.stream()
+//                .collect(Collectors.groupingBy(Function.identity(),
+//                        (Collectors.counting())))).entrySet().stream().
+//                sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+//                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+//        Double  traversedBytesOfAllFlowsSize = traversedBytesOfAllFlows.size()*1.0;
+//        Map<Integer,Double> pdf = new HashMap<>();
+//        sortedFrequencyOfBursts.forEach((key, value) -> {
+//            double probability = Utilities.getRoundedValue(( value/traversedBytesOfAllFlowsSize)*100.0);
+//            pdf.put(key,probability);
+//        });
+////        System.out.println(pdf);
+//        Map<Integer,Double> cdf = new HashMap<>();
+//        for (Integer key: pdf.keySet()) {
+//            Double sum = 0.0;
+//            for (Integer key2: sortedFrequencyOfBursts.keySet()) {
+//                if(key2<=key){
+//                    sum+=pdf.get(key2);
+//                }
+//            }
+//            sum = Utilities.getRoundedValue(sum);
+//            cdf.put(key,sum);
+//        }
+////        System.out.println(cdf);
+//        cdf = cdf.entrySet().stream().
+//                sorted(Map.Entry.comparingByKey()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+//                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+////        for (Integer key: cdf.keySet()) {
+////            System.out.println(key+"\t"+ cdf.get(key));
+////        }
+//        try{
+//            File file = new File(Results.resultsDir+"/cdf_bytes_traversed_bursts.txt");
+//            file.createNewFile();
+//            FileWriter fileWriter = new FileWriter(file,false);
+//            fileWriter.write("dataset"+"\t\t"+"Bytes"+"\t\t\t"+"X%"+"\n");
+//            for (Integer key:cdf.keySet()) {
+//                fileWriter.write(Results.dataSetName.replace(".pcap","")+"\t\t"+key+"\t\t"+cdf.get(key)+"\n");
+//                fileWriter.flush();
+//            }
+//            fileWriter.flush();
+//            fileWriter.close();
+//        }catch (Exception e){
+//            System.out.println(e);
+//        }
     }
 
     public static void printCDFBytesTraversedBurstsToFile(ArrayList<RawFlow> flows, int transportLayerProtocol){
@@ -477,28 +484,57 @@ public class Results {
         Map sortedCDF = Results.calculateCDFDouble(arrayList);
         Results.writeCDFDataToFile(path,"dataset"+"\t\t"+T.toString()+"\t\t\t"+"X%",sortedCDF);
     }
-    public static void saveCDFOFInterBurstTime(ArrayList<RawFlow> flows){
-        ArrayList<Long> allFlowInterBurstTime = new ArrayList<>();
-        for (RawFlow rawFlow: flows ) {
-            if(rawFlow.isBursty()){
-                allFlowInterBurstTime.addAll(rawFlow.getBurstEvents().getBurstInterBurstTime());
-            }
-        }
-        Map sortedCDF = Results.calculateCDFLong(allFlowInterBurstTime);
+    public static void saveCDFOFInterBurstTime(){
+        ArrayList<Integer> allFlowInterBurstTime = FlowManager.getInterBurstTimeOfAllFlows();
+        Map sortedCDF = Results.calculateCDF(allFlowInterBurstTime);
         String path = Results.resultsDir+"/"+"cdf_inter-burst_time.txt";
         String header = "dataset"+"\t\t"+"inter-burst(us)"+"\t\t\t"+"X%";
         Results.writeCDFDataToFile(path,header,sortedCDF);
     }
-    public static void saveCDFOfBurstRatio(ArrayList<RawFlow> flows){
-        ArrayList<Double> burstRatioOfAllFlows = new ArrayList<>();
-        for (RawFlow rawFlow: flows ) {
-            if(rawFlow.isBursty()){
-               burstRatioOfAllFlows.addAll(rawFlow.getListOfBurstsRatio());
-            }
-        }
+    public static void saveCDFOfBurstRatio(){
+        ArrayList<Double> burstRatioOfAllFlows = FlowManager.getBurstRatioOfAllFlows();
         Map sortedCDF = Results.calculateCDFDouble(burstRatioOfAllFlows);
         String path = Results.resultsDir+"/"+"cdf_burst_ratio.txt";
         String header = "dataset"+"\t\t"+"burst ratio"+"\t\t\t"+"X%";
         Results.writeCDFDataToFile(path,header,sortedCDF);
+    }
+    public static void saveCDFOfAveragePacketSizeInEachBurst(){
+        // TODO: implement body of function, print results in results folder
+        Map<Integer,Double> sortedCDF = calculateCDF(FlowManager.getAveragePacketSize());
+        String path = Results.resultsDir+"/"+"cdf_pkt_size.txt";
+        String header = "dataset"+"\t\t"+"avg pkt size"+"\t\t\t"+"X%";
+        Results.writeCDFDataToFile(path,header,sortedCDF);
+        writeCDFDataToFile(path,resultsDir,sortedCDF);
+    }
+    public static void saveCDFNumberOfBurstInEachFlow(){
+        Map<Integer,Double> sortedCDF = calculateCDF(FlowManager.getNumberOfBurstInAllFlows());
+        String path = Results.resultsDir+"/"+"cdf_num_brst_in_all_flows.txt";
+        String header = "dataset"+"\t\t"+"num_brst_in_each_flow"+"\t\t\t"+"X%";
+        Results.writeCDFDataToFile(path,header,sortedCDF);
+        writeCDFDataToFile(path,resultsDir,sortedCDF);
+    }
+    public static void saveCDFOfLivenessTimeOfAllFlows(){
+        Map<Long,Double> sortedCDF = calculateCDFLong(FlowManager.getFlows().stream()
+                .map(RawFlow::flowLiveTime).collect(Collectors.toCollection(ArrayList::new)));
+        String path = Results.resultsDir+"/"+"cdf_length_all_flows.txt";
+        String header = "dataset"+"\t\t"+"length of flows"+"\t\t\t"+"X%";
+        Results.writeCDFDataToFile(path,header,sortedCDF);
+        writeCDFDataToFile(path,resultsDir,sortedCDF);
+    }
+    public static void saveCDFOfLivenessTimeOfBurstyFlows(){
+        Map<Long,Double> sortedCDF = calculateCDFLong(FlowManager.getFlows().stream()
+                .filter(RawFlow::isBursty).map(RawFlow::flowLiveTime).collect(Collectors.toCollection(ArrayList::new)));
+        String path = Results.resultsDir+"/"+"cdf_length_bursty_flows.txt";
+        String header = "dataset"+"\t\t"+"length of flows"+"\t\t\t"+"X%";
+        Results.writeCDFDataToFile(path,header,sortedCDF);
+        writeCDFDataToFile(path,resultsDir,sortedCDF);
+    }
+    public static void saveCDFOfLivenessTimeOfHeavyFlows(){
+        Map<Long,Double> sortedCDF = calculateCDFLong(FlowManager.getFlows().stream()
+                .filter(RawFlow::isHeavy).map(RawFlow::flowLiveTime).collect(Collectors.toCollection(ArrayList::new)));
+        String path = Results.resultsDir+"/"+"cdf_length_bursty_flows.txt";
+        String header = "dataset"+"\t\t"+"length of flows"+"\t\t\t"+"X%";
+        Results.writeCDFDataToFile(path,header,sortedCDF);
+        writeCDFDataToFile(path,resultsDir,sortedCDF);
     }
 }

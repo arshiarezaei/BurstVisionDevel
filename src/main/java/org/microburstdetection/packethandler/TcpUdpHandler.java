@@ -10,10 +10,8 @@ import java.io.IOException;
 
 
 public class TcpUdpHandler implements PacketHandler {
-
     @Override
     public boolean nextPacket(Packet packet) throws IOException {
-
 //         Check the packet protocol
         if (packet.hasProtocol(Protocol.IPv4)){
             IPv4Packet iPv4Packet = (IPv4Packet) packet.getPacket(Protocol.IPv4);

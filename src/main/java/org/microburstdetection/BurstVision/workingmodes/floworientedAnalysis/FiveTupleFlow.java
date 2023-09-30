@@ -10,6 +10,7 @@ import io.pkts.packet.TCPPacket;
 import io.pkts.packet.UDPPacket;
 import io.pkts.protocol.Protocol;
 
+import org.microburstdetection.BurstVision.cnfg.ConfigurationParameters;
 import org.microburstdetection.BurstVision.utilities.TraversedBytesUnits;
 import org.microburstdetection.BurstVision.utilities.Utilities;
 import org.microburstdetection.networkstack.layer3.IPV4;
@@ -74,7 +75,7 @@ public class FiveTupleFlow extends Flow implements RawFlow {
             this.burstEventHandler.newPacket(packet);
             numberOfPackets+=1;
         }else {
-             burstEventHandler.newPacket(packet);
+            burstEventHandler.newPacket(packet);
             firstPacketArrived=true;
             this.firstPacketTime = Math.abs(packet.getArrivalTime());
             numberOfPackets=1;
@@ -131,6 +132,9 @@ public class FiveTupleFlow extends Flow implements RawFlow {
 
     @Override
     public BurstEventHandler getBurstEvents() {
+        burstEventHandler.getBursts(10, ConfigurationParameters.getTrafficMonitoringParameters().getSampleDuration(),
+                ConfigurationParameters.getTrafficMonitoringParameters().getSamplingWindowDuration(),
+                (int) ConfigurationParameters.getBurstParameters().getBurstRatio());
         return burstEventHandler;
     }
 
@@ -153,9 +157,9 @@ public class FiveTupleFlow extends Flow implements RawFlow {
     @Override
     public  Double getAverageThroughputInBursts(TraversedBytesUnits T) {
         // TODO: throws Exception if the flow is not bursty
-        if(this.isBursty()){
-            return  this.burstEventHandler.getAverageThroughputInBursts();
-        }
+//        if(this.isBursty()){
+//            return  this.burstEventHandler.getThroughputInBursts();
+//        }
         return null;
     }
 
@@ -180,4 +184,5 @@ public class FiveTupleFlow extends Flow implements RawFlow {
         // TODO:
         return null;
     }
+
 }
